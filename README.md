@@ -28,3 +28,7 @@ Auto Blocks will localize two arrays for use in the template file: `$block`, con
   <h2><?php echo $data['title']; ?></h2>
 </div>
 ```
+
+## Converting Flexible Layouts
+
+Auto Blocks will also assist in converting flexible layouts 'page builders' into block-ready field groups. Look for the new 'Convert to Block' action in the layout settings when editing a flexible layout.
