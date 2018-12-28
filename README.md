@@ -31,4 +31,4 @@ Auto Blocks will localize two arrays for use in the template file: `$block`, con
 
 ## Converting Flexible Layouts
 
-Auto Blocks will also assist in converting flexible layouts 'page builders' into block-ready field groups. Look for the new 'Convert to Block' action in the layout settings when editing a flexible layout.
+Auto Blocks will also assist in converting flexible layout 'page builders' into block-ready field groups. Look for the new 'Convert to Block' action in the layout settings when editing a flexible layout.
