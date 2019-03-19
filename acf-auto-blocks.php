@@ -65,7 +65,7 @@ class ACF_Auto_Blocks {
       $auto_blocks = $this->get_auto_blocks();
 
       foreach ( $auto_blocks as $auto_block ) {
-        $field_group = acf_get_field_group( $auto_block->ID );
+        $field_group = acf_get_field_group( $auto_block['ID'] );
         $options = ACF_Auto_Blocks::parse_options( $field_group );
 
         acf_register_block( array(
@@ -93,10 +93,21 @@ class ACF_Auto_Blocks {
   public function render_block( $block ) {
     $slug = str_replace( 'acf/', '', $block['name'] );
 
+    ob_start();
+
     $this->template_part( $slug, array(
+      'is_admin' => is_admin(),
       'block' => $block,
       'data' => get_fields(),
     ) );
+
+    $content = ob_get_clean();
+
+    if ( is_admin() ) {
+      echo apply_filters( 'acfab_render_block', $content, $block );
+    } else {
+      echo $content;
+    }
   }
 
 
@@ -127,7 +138,7 @@ class ACF_Auto_Blocks {
     $auto_blocks = $this->get_auto_blocks();
 
     foreach ( $auto_blocks as $auto_block ) {
-      $field_group = acf_get_field_group( $auto_block->ID );
+      $field_group = acf_get_field_group( $auto_block['ID'] );
       $options = ACF_Auto_Blocks::parse_options( $field_group );
 
       if ( ! in_array( $post_type, $options['auto_block_post_types'] ) ) {
@@ -160,7 +171,7 @@ class ACF_Auto_Blocks {
     // TODO optimize this?
     $auto_blocks = get_posts( array(
       'post_type' => 'acf-field-group',
-      'post_per_page' => -1,
+      'posts_per_page' => -1,
       'meta_query' => array(
         array(
           'key' => '_auto_block',
@@ -169,7 +180,35 @@ class ACF_Auto_Blocks {
       ),
     ) );
 
+    $groups = acf_get_field_groups();
+
+    $auto_blocks = array();
+
+    foreach ( $groups as $group ) {
+      $is_block = $this->check_location( $group['location'] );
+
+      if ( $is_block ) {
+        $auto_blocks[] = $group;
+      }
+    }
+
     return $auto_blocks;
+  }
+
+  public function check_location($array) {
+    foreach ( $array as $arr ) {
+      if ( ! empty( $arr['param'] ) && $arr['param'] == 'block' ) {
+        $check = true;
+      } else if ( is_array( $arr ) ) {
+        $check = $this->check_location( $arr );
+      }
+
+      if ( $check ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 
