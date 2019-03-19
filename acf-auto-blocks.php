@@ -65,7 +65,8 @@ class ACF_Auto_Blocks {
       $auto_blocks = $this->get_auto_blocks();
 
       foreach ( $auto_blocks as $auto_block ) {
-        $field_group = acf_get_field_group( $auto_block['ID'] );
+        // $field_group = acf_get_field_group( $auto_block['ID'] );
+        $field_group = $auto_block;
         $options = ACF_Auto_Blocks::parse_options( $field_group );
 
         acf_register_block( array(
@@ -138,7 +139,8 @@ class ACF_Auto_Blocks {
     $auto_blocks = $this->get_auto_blocks();
 
     foreach ( $auto_blocks as $auto_block ) {
-      $field_group = acf_get_field_group( $auto_block['ID'] );
+      // $field_group = acf_get_field_group( $auto_block['ID'] );
+      $field_group = $auto_block;
       $options = ACF_Auto_Blocks::parse_options( $field_group );
 
       if ( ! in_array( $post_type, $options['auto_block_post_types'] ) ) {
@@ -168,17 +170,17 @@ class ACF_Auto_Blocks {
 
   // Get auto blocks
   public function get_auto_blocks() {
-    // TODO optimize this?
-    $auto_blocks = get_posts( array(
-      'post_type' => 'acf-field-group',
-      'posts_per_page' => -1,
-      'meta_query' => array(
-        array(
-          'key' => '_auto_block',
-          'value' => 'on',
-        ),
-      ),
-    ) );
+    // // TODO optimize this?
+    // $auto_blocks = get_posts( array(
+    //   'post_type' => 'acf-field-group',
+    //   'posts_per_page' => -1,
+    //   'meta_query' => array(
+    //     array(
+    //       'key' => '_auto_block',
+    //       'value' => 'on',
+    //     ),
+    //   ),
+    // ) );
 
     $groups = acf_get_field_groups();
 
@@ -196,6 +198,8 @@ class ACF_Auto_Blocks {
   }
 
   public function check_location($array) {
+    $check = false;
+
     foreach ( $array as $arr ) {
       if ( ! empty( $arr['param'] ) && $arr['param'] == 'block' ) {
         $check = true;
