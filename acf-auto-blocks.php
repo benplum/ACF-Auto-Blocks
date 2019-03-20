@@ -31,6 +31,8 @@ class ACF_Auto_Blocks {
   }
 
   public function __construct() {
+    add_action( 'init', array( $this, 'init' ), 999 );
+
     add_action( 'acf/init', array( $this, 'acf_init' ), 999 );
 
     add_filter( 'block_categories', array( $this, 'register_category' ), 999, 2 );
@@ -40,10 +42,18 @@ class ACF_Auto_Blocks {
 
 
   // Init
+  public function init() {
+    $this->register_post_templates();
+  }
+
+
+  // ACF Init
   public function acf_init() {
     $this->directory = apply_filters( 'acf/auto_blocks/directory', get_template_directory() . '/acf-blocks' );
 
     $this->register_blocks();
+    $this->register_post_templates();
+    $this->register_editor_blocks();
   }
 
 
@@ -62,7 +72,8 @@ class ACF_Auto_Blocks {
   // Register blocks
   public function register_blocks() {
     if ( function_exists('acf_register_block') ) {
-      $auto_blocks = $this->get_auto_blocks();
+      // $auto_blocks = $this->get_auto_blocks();
+      $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
 
       foreach ( $auto_blocks as $auto_block ) {
         // $field_group = acf_get_field_group( $auto_block['ID'] );
@@ -90,6 +101,55 @@ class ACF_Auto_Blocks {
   }
 
 
+  // Register post templates
+  public function register_post_templates() {
+    $template_settings = get_field( 'acfab_templates', 'option' );
+    $templates = array();
+
+    foreach ( $template_settings as $settings ) {
+      $template = array();
+
+      foreach ( $settings['acfab_post_template'] as $block ) {
+        $template[] = array( $block['acfab_block'] );
+      }
+
+      $templates[ $settings['acfab_post_type'] ] = array(
+        'template' => $template,
+        'template_lock' => $settings['acfab_template_lock'],
+      );
+    }
+
+    foreach ( $templates as $post_type => $options ) {
+      $object = get_post_type_object( $post_type );
+
+      $object->template = $options['template'];
+
+      if ( ! empty( $options['template_lock'] ) ) {
+        $object->template_lock = $options['template_lock'];
+      }
+    }
+  }
+
+
+  // Register editor blocks
+  public function register_editor_blocks() {
+  	if ( ! function_exists( 'register_block_type' ) ) {
+  		return;
+  	}
+
+  	wp_register_script(
+  		'acfab-blocks',
+  		plugin_dir_url( __FILE__ ) . 'assets/blocks.js',
+  		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
+  		filemtime( plugin_dir_path( __FILE__ ) . 'assets/blocks.js' )
+  	);
+
+  	register_block_type( 'w/region', array(
+  		'editor_script' => 'acfab-blocks',
+  	) );
+  }
+
+
   // Render block
   public function render_block( $block ) {
     $slug = str_replace( 'acf/', '', $block['name'] );
@@ -105,7 +165,7 @@ class ACF_Auto_Blocks {
     $content = ob_get_clean();
 
     if ( is_admin() ) {
-      echo apply_filters( 'acfab_render_block', $content, $block );
+      echo apply_filters( 'acf/auto_blocks/render_block', $content, $block );
     } else {
       echo $content;
     }
@@ -136,7 +196,8 @@ class ACF_Auto_Blocks {
   function admin_footer_scripts() {
     $blacklist = array();
     $post_type = get_post_type();
-    $auto_blocks = $this->get_auto_blocks();
+    // $auto_blocks = $this->get_auto_blocks();
+    $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
 
     foreach ( $auto_blocks as $auto_block ) {
       // $field_group = acf_get_field_group( $auto_block['ID'] );
@@ -169,25 +230,13 @@ class ACF_Auto_Blocks {
 
 
   // Get auto blocks
-  public function get_auto_blocks() {
-    // // TODO optimize this?
-    // $auto_blocks = get_posts( array(
-    //   'post_type' => 'acf-field-group',
-    //   'posts_per_page' => -1,
-    //   'meta_query' => array(
-    //     array(
-    //       'key' => '_auto_block',
-    //       'value' => 'on',
-    //     ),
-    //   ),
-    // ) );
-
+  public static function get_auto_blocks() {
     $groups = acf_get_field_groups();
 
     $auto_blocks = array();
 
     foreach ( $groups as $group ) {
-      $is_block = $this->check_location( $group['location'] );
+      $is_block = ACF_Auto_Blocks::check_block_location( $group['location'] );
 
       if ( $is_block ) {
         $auto_blocks[] = $group;
@@ -197,14 +246,16 @@ class ACF_Auto_Blocks {
     return $auto_blocks;
   }
 
-  public function check_location($array) {
+
+  // Validate location
+  public static function check_block_location($array) {
     $check = false;
 
     foreach ( $array as $arr ) {
       if ( ! empty( $arr['param'] ) && $arr['param'] == 'block' ) {
         $check = true;
       } else if ( is_array( $arr ) ) {
-        $check = $this->check_location( $arr );
+        $check = ACF_Auto_Blocks::check_block_location( $arr );
       }
 
       if ( $check ) {
@@ -257,72 +308,3 @@ ACF_Auto_Blocks::get_instance();
 include 'includes/converter.php';
 include 'includes/settings.php';
 include 'includes/updater.php';
-
-
-
-
-
-function acfab_register_post_templates() {
-  $template_settings = get_field( 'acfab_templates', 'option' );
-  $templates = array();
-
-  foreach ( $template_settings as $settings ) {
-    $template = array();
-
-    foreach ( $settings['acfab_post_template'] as $block ) {
-      $template[] = array( $block['acfab_block'] );
-    }
-
-    $templates[ $settings['acfab_post_type'] ] = array(
-      'template' => $template,
-      'template_lock' => $settings['acfab_template_lock'],
-    );
-  }
-
-  foreach ( $templates as $post_type => $options ) {
-    $object = get_post_type_object( $post_type );
-
-    $object->template = $options['template'];
-
-    if ( ! empty( $options['template_lock'] ) ) {
-      $object->template_lock = $options['template_lock'];
-    }
-  }
-}
-add_action( 'init', 'acfab_register_post_templates', 6 );
-
-
-function acfab_editor_customization() {
-  ?>
-<style>
-[data-type="acfab/region"] {
-  max-width: none;
-}
-@media screen and (min-width: 600px) {
-  [data-type="acfab/region"] {
-    margin-right: 0;
-    margin-left: 0;
-  }
-}
-</style>
-  <?php
-}
-add_action( 'print_default_editor_scripts', 'acfab_editor_customization', 999 );
-
-function acfab_register_blocks() {
-	if ( ! function_exists( 'register_block_type' ) ) {
-		return;
-	}
-
-	wp_register_script(
-		'acfab-blocks',
-		plugin_dir_url( __FILE__ ) . 'assets/blocks.js',
-		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
-		filemtime( plugin_dir_path( __FILE__ ) . 'assets/blocks.js' )
-	);
-
-	register_block_type( 'w/region', array(
-		'editor_script' => 'acfab-blocks',
-	) );
-}
-add_action( 'init', 'acfab_register_blocks' );
