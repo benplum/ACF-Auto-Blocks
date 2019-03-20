@@ -74,6 +74,15 @@ class ACF_Auto_Block_Settings {
       $types[ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
     }
 
+    $icons_path = plugin_dir_path( ACF_Auto_Blocks::get_instance()->file ) . 'assets/icons.json';
+    $icons_file = file_get_contents( $icons_path );
+    $icons_json = json_decode( $icons_file, true );
+    $icons = array();
+
+    foreach ( $icons_json as $k => $v ) {
+      $icons[ $v ] = '<span class="icon">' . $v . '</span>';
+    }
+
     unset( $types['attachment'] );
     unset( $types['revision'] );
     unset( $types['nav_menu_item'] );
@@ -116,10 +125,12 @@ class ACF_Auto_Block_Settings {
     acf_render_field_wrap( array(
       'label' => __( 'Block Icon', 'acfab' ),
       'instructions' => '',
-      'type' => 'text',
+      'type' => 'radio',
       'name' => 'auto_block_icon',
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_icon'],
+      'toggle' => true,
+      'choices' => $icons,
     ) );
 
     acf_render_field_wrap( array(
@@ -230,6 +241,34 @@ class ACF_Auto_Block_Settings {
         background-color: #5EE8BF;
         color: #fff;
       }
+      [data-name="auto_block_icon"] .acf-radio-list li {
+        float: left;
+      }
+      [data-name="auto_block_icon"] .acf-radio-list .icon {
+        height: 35px;
+        width: 35px;
+        display: block;
+        border-radius: 2px;
+        line-height: 50px;
+        margin: 2px;
+        position: relative;
+        text-align: center;
+      }
+      [data-name="auto_block_icon"] .acf-radio-list .icon:hover {
+        background: #ddd;
+      }
+      [data-name="auto_block_icon"] .acf-radio-list input:checked + .icon {
+        background: #2a9bd9;
+      }
+      [data-name="auto_block_icon"] .acf-radio-list svg {
+        display: inline-block;
+      }
+      [data-name="auto_block_icon"] .acf-radio-list input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+      }
     </style>
     <?php
   }
@@ -270,3 +309,190 @@ class ACF_Auto_Block_Settings {
 // Instance
 
 ACF_Auto_Block_Settings::get_instance();
+
+
+
+function acfab_init() {
+  acf_add_options_sub_page( array(
+    'page_title' => 'Post Type Templates',
+    'menu_title' => 'Templates',
+    'menu_slug' => 'acfab-templates',
+    'parent_slug' => 'edit.php?post_type=acf-field-group',
+    'autoload' => true,
+    'position' => 0,
+  ) );
+
+  acf_add_local_field_group( array(
+    'key' => 'group_5c9258a942887',
+    'title' => 'Templates',
+    'fields' => array(
+      array(
+        'key' => 'field_5c9258c55a2a2',
+        'label' => 'Templates',
+        'name' => 'acfab_templates',
+        'type' => 'repeater',
+        'instructions' => '',
+        'required' => 0,
+        'conditional_logic' => 0,
+        'wrapper' => array(
+          'width' => '',
+          'class' => '',
+          'id' => '',
+        ),
+        'collapsed' => '',
+        'min' => 0,
+        'max' => 0,
+        'layout' => 'block',
+        'button_label' => 'Add Template',
+        'sub_fields' => array(
+          array(
+            'key' => 'field_5c9258b15a2a1',
+            'label' => 'Post Type',
+            'name' => 'acfab_post_type',
+            'type' => 'select',
+            'instructions' => '',
+            'required' => 1,
+            'conditional_logic' => 0,
+            'wrapper' => array(
+              'width' => '50',
+              'class' => '',
+              'id' => '',
+            ),
+            'choices' => array(
+              'post' => 'Posts (post)',
+              'page' => 'Pages (page)',
+            ),
+            'default_value' => array(
+            ),
+            'allow_null' => 0,
+            'multiple' => 0,
+            'ui' => 0,
+            'return_format' => 'value',
+            'ajax' => 0,
+            'placeholder' => '',
+          ),
+          array(
+            'key' => 'field_5c925b7daeb44',
+            'label' => 'Template Lock',
+            'name' => 'acfab_template_lock',
+            'type' => 'button_group',
+            'instructions' => '',
+            'required' => 0,
+            'conditional_logic' => 0,
+            'wrapper' => array(
+              'width' => '50',
+              'class' => '',
+              'id' => '',
+            ),
+            'choices' => array(
+              'false' => 'None',
+              'all' => 'All',
+              'insert' => 'Insert',
+            ),
+            'allow_null' => 0,
+            'default_value' => 'false',
+            'layout' => 'horizontal',
+            'return_format' => 'value',
+          ),
+          array(
+            'key' => 'field_5c9258e45a2a3',
+            'label' => 'Template',
+            'name' => 'acfab_post_template',
+            'type' => 'repeater',
+            'instructions' => '',
+            'required' => 1,
+            'conditional_logic' => 0,
+            'wrapper' => array(
+              'width' => '',
+              'class' => '',
+              'id' => '',
+            ),
+            'collapsed' => '',
+            'min' => 1,
+            'max' => 0,
+            'layout' => 'row',
+            'button_label' => 'Add Block',
+            'sub_fields' => array(
+              array(
+                'key' => 'field_5c9258f85a2a4',
+                'label' => 'Block',
+                'name' => 'acfab_block',
+                'type' => 'select',
+                'instructions' => '',
+                'required' => 1,
+                'conditional_logic' => 0,
+                'wrapper' => array(
+                  'width' => '',
+                  'class' => '',
+                  'id' => '',
+                ),
+                'choices' => array(
+                  'acfab/region' => 'Region',
+                ),
+                'default_value' => array(
+                ),
+                'allow_null' => 0,
+                'multiple' => 0,
+                'ui' => 0,
+                'return_format' => 'value',
+                'ajax' => 0,
+                'placeholder' => '',
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+    'location' => array(
+      array(
+        array(
+          'param' => 'options_page',
+          'operator' => '==',
+          'value' => 'acfab-templates',
+        ),
+      ),
+    ),
+    'menu_order' => 0,
+    'position' => 'normal',
+    'style' => 'default',
+    'label_placement' => 'top',
+    'instruction_placement' => 'label',
+    'hide_on_screen' => '',
+    'active' => true,
+    'description' => '',
+  ) );
+}
+add_action( 'acf/init', 'acfab_init', 999 );
+
+function acfab_populate_post_types( $field ) {
+  $field['choices'] = array();
+
+  $post_types = get_post_types( array(
+  ), 'objects' );
+
+  // $types = array(
+  //   // 'wp_block' => 'Blocks',
+  // );
+  foreach ( $post_types as $post_type ) {
+    // $types[ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
+    $field['choices'][ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
+  }
+
+  return $field;
+}
+add_filter( 'acf/load_field/name=acfab_post_type', 'acfab_populate_post_types' );
+
+function acfab_populate_blocks( $field ) {
+  $field['choices'] = array();
+
+  $auto_blocks = ACF_Auto_Blocks::get_instance()->get_auto_blocks();
+
+  $field['choices'][ 'acfab/region' ] = 'Region';
+
+  foreach ( $auto_blocks as $auto_block ) {
+    $field['choices'][ 'acf/' . $auto_block['auto_block_key'] ] = $auto_block['title'];
+  }
+
+  return $field;
+}
+add_filter( 'acf/load_field/name=acfab_block', 'acfab_populate_blocks' );
