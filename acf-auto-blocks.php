@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the new editor (Gutenberg).
-Version: 1.0.3
+Version: 1.0.4
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -43,7 +43,8 @@ class ACF_Auto_Blocks {
 
   // Init
   public function init() {
-    $this->register_post_templates();
+    // $this->register_post_templates();
+    $this->register_editor_blocks();
   }
 
 
@@ -52,8 +53,6 @@ class ACF_Auto_Blocks {
     $this->directory = apply_filters( 'acf/auto_blocks/directory', get_template_directory() . '/acf-blocks' );
 
     $this->register_blocks();
-    $this->register_post_templates();
-    $this->register_editor_blocks();
   }
 
 
@@ -101,34 +100,34 @@ class ACF_Auto_Blocks {
   }
 
 
-  // Register post templates
-  public function register_post_templates() {
-    $template_settings = get_field( 'acfab_templates', 'option' );
-    $templates = array();
-
-    foreach ( $template_settings as $settings ) {
-      $template = array();
-
-      foreach ( $settings['acfab_post_template'] as $block ) {
-        $template[] = array( $block['acfab_block'] );
-      }
-
-      $templates[ $settings['acfab_post_type'] ] = array(
-        'template' => $template,
-        'template_lock' => $settings['acfab_template_lock'],
-      );
-    }
-
-    foreach ( $templates as $post_type => $options ) {
-      $object = get_post_type_object( $post_type );
-
-      $object->template = $options['template'];
-
-      if ( ! empty( $options['template_lock'] ) ) {
-        $object->template_lock = $options['template_lock'];
-      }
-    }
-  }
+  // // Register post templates
+  // public function register_post_templates() {
+  //   $template_settings = get_field( 'acfab_templates', 'option' );
+  //   $templates = array();
+  //
+  //   foreach ( $template_settings as $settings ) {
+  //     $template = array();
+  //
+  //     foreach ( $settings['acfab_post_template'] as $block ) {
+  //       $template[] = array( $block['acfab_block'] );
+  //     }
+  //
+  //     $templates[ $settings['acfab_post_type'] ] = array(
+  //       'template' => $template,
+  //       'template_lock' => $settings['acfab_template_lock'],
+  //     );
+  //   }
+  //
+  //   foreach ( $templates as $post_type => $options ) {
+  //     $object = get_post_type_object( $post_type );
+  //
+  //     $object->template = $options['template'];
+  //
+  //     if ( ! empty( $options['template_lock'] ) ) {
+  //       $object->template_lock = $options['template_lock'];
+  //     }
+  //   }
+  // }
 
 
   // Register editor blocks
@@ -273,6 +272,7 @@ class ACF_Auto_Blocks {
       'auto_block' => 0,
       'auto_block_key' => '',
       'auto_block_description' => '',
+      'auto_block_icon' => '',
       'auto_block_keywords' => '',
       'auto_block_align' => array(),
       'auto_block_multiple' => 0,

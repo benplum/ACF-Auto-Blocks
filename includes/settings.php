@@ -18,13 +18,15 @@ class ACF_Auto_Block_Settings {
   }
 
   public function __construct() {
-    add_action( 'acf/init', array( $this, 'acf_init' ), 998 );
-
-    add_filter( 'acf/load_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
-    add_filter( 'acf/prepare_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
-
-    add_filter( 'acf/load_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
-    add_filter( 'acf/prepare_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
+    // add_action( 'acf/init', array( $this, 'acf_init' ), 998 );
+    //
+    // add_action( 'acf/save_post', array( $this, 'export_templates' ), 999 );
+    //
+    // add_filter( 'acf/load_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
+    // add_filter( 'acf/prepare_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
+    //
+    // add_filter( 'acf/load_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
+    // add_filter( 'acf/prepare_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
 
     add_filter( 'manage_edit-acf-field-group_columns', array( $this, 'field_group_columns' ), 999, 1 );
 
@@ -40,190 +42,217 @@ class ACF_Auto_Block_Settings {
   }
 
 
-  // ACF Init
-  public function acf_init() {
-    acf_add_options_sub_page( array(
-      'page_title' => 'Post Type Templates',
-      'menu_title' => 'Templates',
-      'menu_slug' => 'acfab-templates',
-      'parent_slug' => 'edit.php?post_type=acf-field-group',
-      'autoload' => true,
-      'position' => 0,
-    ) );
-
-    acf_add_local_field_group( array(
-      'key' => 'group_5c9258a942887',
-      'title' => 'Templates',
-      'fields' => array(
-        array(
-          'key' => 'field_5c9258c55a2a2',
-          'label' => 'Templates',
-          'name' => 'acfab_templates',
-          'type' => 'repeater',
-          'instructions' => '',
-          'required' => 0,
-          'conditional_logic' => 0,
-          'wrapper' => array(
-            'width' => '',
-            'class' => '',
-            'id' => '',
-          ),
-          'collapsed' => '',
-          'min' => 0,
-          'max' => 0,
-          'layout' => 'block',
-          'button_label' => 'Add Template',
-          'sub_fields' => array(
-            array(
-              'key' => 'field_5c9258b15a2a1',
-              'label' => 'Post Type',
-              'name' => 'acfab_post_type',
-              'type' => 'select',
-              'instructions' => '',
-              'required' => 1,
-              'conditional_logic' => 0,
-              'wrapper' => array(
-                'width' => '50',
-                'class' => '',
-                'id' => '',
-              ),
-              'choices' => array(
-                'post' => 'Posts (post)',
-                'page' => 'Pages (page)',
-              ),
-              'default_value' => array(
-              ),
-              'allow_null' => 0,
-              'multiple' => 0,
-              'ui' => 0,
-              'return_format' => 'value',
-              'ajax' => 0,
-              'placeholder' => '',
-            ),
-            array(
-              'key' => 'field_5c925b7daeb44',
-              'label' => 'Template Lock',
-              'name' => 'acfab_template_lock',
-              'type' => 'button_group',
-              'instructions' => '',
-              'required' => 0,
-              'conditional_logic' => 0,
-              'wrapper' => array(
-                'width' => '50',
-                'class' => '',
-                'id' => '',
-              ),
-              'choices' => array(
-                'false' => 'None',
-                'all' => 'All',
-                'insert' => 'Insert',
-              ),
-              'allow_null' => 0,
-              'default_value' => 'false',
-              'layout' => 'horizontal',
-              'return_format' => 'value',
-            ),
-            array(
-              'key' => 'field_5c9258e45a2a3',
-              'label' => 'Template',
-              'name' => 'acfab_post_template',
-              'type' => 'repeater',
-              'instructions' => '',
-              'required' => 1,
-              'conditional_logic' => 0,
-              'wrapper' => array(
-                'width' => '',
-                'class' => '',
-                'id' => '',
-              ),
-              'collapsed' => '',
-              'min' => 1,
-              'max' => 0,
-              'layout' => 'row',
-              'button_label' => 'Add Block',
-              'sub_fields' => array(
-                array(
-                  'key' => 'field_5c9258f85a2a4',
-                  'label' => 'Block',
-                  'name' => 'acfab_block',
-                  'type' => 'select',
-                  'instructions' => '',
-                  'required' => 1,
-                  'conditional_logic' => 0,
-                  'wrapper' => array(
-                    'width' => '',
-                    'class' => '',
-                    'id' => '',
-                  ),
-                  'choices' => array(
-                    'acfab/region' => 'Region',
-                  ),
-                  'default_value' => array(
-                  ),
-                  'allow_null' => 0,
-                  'multiple' => 0,
-                  'ui' => 0,
-                  'return_format' => 'value',
-                  'ajax' => 0,
-                  'placeholder' => '',
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      'location' => array(
-        array(
-          array(
-            'param' => 'options_page',
-            'operator' => '==',
-            'value' => 'acfab-templates',
-          ),
-        ),
-      ),
-      'menu_order' => 0,
-      'position' => 'normal',
-      'style' => 'default',
-      'label_placement' => 'top',
-      'instruction_placement' => 'label',
-      'hide_on_screen' => '',
-      'active' => true,
-      'description' => '',
-    ) );
-  }
-
-
-  // Populate post types
-  public function populate_post_type_select( $field ) {
-    $field['choices'] = array();
-
-    $post_types = get_post_types( array(
-      // 'public' => true
-    ), 'objects' );
-
-    foreach ( $post_types as $post_type ) {
-      $field['choices'][ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
-    }
-
-    return $field;
-  }
+  // // ACF Init
+  // public function acf_init() {
+  //   acf_add_options_sub_page( array(
+  //     'page_title' => 'Post Type Templates',
+  //     'menu_title' => 'Templates',
+  //     'menu_slug' => 'acfab-templates',
+  //     'parent_slug' => 'edit.php?post_type=acf-field-group',
+  //     'autoload' => true,
+  //     'position' => 0,
+  //   ) );
+  //
+  //   acf_add_local_field_group( array(
+  //     'key' => 'group_5c9258a942887',
+  //     'title' => 'Templates',
+  //     'fields' => array(
+  //       array(
+  //         'key' => 'field_5c9258c55a2a2',
+  //         'label' => 'Templates',
+  //         'name' => 'acfab_templates',
+  //         'type' => 'repeater',
+  //         'instructions' => '',
+  //         'required' => 0,
+  //         'conditional_logic' => 0,
+  //         'wrapper' => array(
+  //           'width' => '',
+  //           'class' => '',
+  //           'id' => '',
+  //         ),
+  //         'collapsed' => '',
+  //         'min' => 0,
+  //         'max' => 0,
+  //         'layout' => 'block',
+  //         'button_label' => 'Add Template',
+  //         'sub_fields' => array(
+  //           array(
+  //             'key' => 'field_5c9258b15a2a1',
+  //             'label' => 'Post Type',
+  //             'name' => 'acfab_post_type',
+  //             'type' => 'select',
+  //             'instructions' => '',
+  //             'required' => 1,
+  //             'conditional_logic' => 0,
+  //             'wrapper' => array(
+  //               'width' => '50',
+  //               'class' => '',
+  //               'id' => '',
+  //             ),
+  //             'choices' => array(
+  //               'post' => 'Posts (post)',
+  //               'page' => 'Pages (page)',
+  //             ),
+  //             'default_value' => array(
+  //             ),
+  //             'allow_null' => 0,
+  //             'multiple' => 0,
+  //             'ui' => 0,
+  //             'return_format' => 'value',
+  //             'ajax' => 0,
+  //             'placeholder' => '',
+  //           ),
+  //           array(
+  //             'key' => 'field_5c925b7daeb44',
+  //             'label' => 'Template Lock',
+  //             'name' => 'acfab_template_lock',
+  //             'type' => 'button_group',
+  //             'instructions' => '',
+  //             'required' => 0,
+  //             'conditional_logic' => 0,
+  //             'wrapper' => array(
+  //               'width' => '50',
+  //               'class' => '',
+  //               'id' => '',
+  //             ),
+  //             'choices' => array(
+  //               'false' => 'None',
+  //               'all' => 'All',
+  //               'insert' => 'Insert',
+  //             ),
+  //             'allow_null' => 0,
+  //             'default_value' => 'false',
+  //             'layout' => 'horizontal',
+  //             'return_format' => 'value',
+  //           ),
+  //           array(
+  //             'key' => 'field_5c9258e45a2a3',
+  //             'label' => 'Template',
+  //             'name' => 'acfab_post_template',
+  //             'type' => 'repeater',
+  //             'instructions' => '',
+  //             'required' => 1,
+  //             'conditional_logic' => 0,
+  //             'wrapper' => array(
+  //               'width' => '',
+  //               'class' => '',
+  //               'id' => '',
+  //             ),
+  //             'collapsed' => '',
+  //             'min' => 1,
+  //             'max' => 0,
+  //             'layout' => 'row',
+  //             'button_label' => 'Add Block',
+  //             'sub_fields' => array(
+  //               array(
+  //                 'key' => 'field_5c9258f85a2a4',
+  //                 'label' => 'Block',
+  //                 'name' => 'acfab_block',
+  //                 'type' => 'select',
+  //                 'instructions' => '',
+  //                 'required' => 1,
+  //                 'conditional_logic' => 0,
+  //                 'wrapper' => array(
+  //                   'width' => '',
+  //                   'class' => '',
+  //                   'id' => '',
+  //                 ),
+  //                 'choices' => array(
+  //                   'acfab/region' => 'Region',
+  //                 ),
+  //                 'default_value' => array(
+  //                 ),
+  //                 'allow_null' => 0,
+  //                 'multiple' => 0,
+  //                 'ui' => 0,
+  //                 'return_format' => 'value',
+  //                 'ajax' => 0,
+  //                 'placeholder' => '',
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //     'location' => array(
+  //       array(
+  //         array(
+  //           'param' => 'options_page',
+  //           'operator' => '==',
+  //           'value' => 'acfab-templates',
+  //         ),
+  //       ),
+  //     ),
+  //     'menu_order' => 0,
+  //     'position' => 'normal',
+  //     'style' => 'default',
+  //     'label_placement' => 'top',
+  //     'instruction_placement' => 'label',
+  //     'hide_on_screen' => '',
+  //     'active' => true,
+  //     'description' => '',
+  //   ) );
+  // }
 
 
-  // Populate blocks
-  public function populate_block_select( $field ) {
-    $field['choices'] = array();
+  // //
+  // function export_templates() {
+  //   $screen = get_current_screen();
+  //
+  //   if ( strpos( $screen->id, 'acfab-templates' ) == true ) {
+  //     $path = acf_get_setting('save_json');
+  //     $path = untrailingslashit( $path );
+  //
+  //     if ( !is_writable( $path ) ) {
+  //       return false;
+  //     }
+  //
+  //     $template_settings = get_field( 'acfab_templates', 'option' );
+  //
+  //     $file = 'acfab_templates.json';
+  //     $data = array(
+  //       'modified' => current_time( 'timestamp'),
+  //       'templates' => $template_settings,
+  //     );
+  //
+  //     $f = fopen( "{$path}/{$file}", 'w' );
+  //     fwrite( $f, acf_json_encode( $data ) );
+  //     fclose( $f );
+  //   }
+  // }
 
-    // $auto_blocks = ACF_Auto_Blocks::get_instance()->get_auto_blocks();
-    $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
 
-    $field['choices'][ 'acfab/region' ] = 'Region';
+  // // Populate post types
+  // public function populate_post_type_select( $field ) {
+  //   $field['choices'] = array();
+  //
+  //   $post_types = get_post_types( array(
+  //     // 'public' => true
+  //   ), 'objects' );
+  //
+  //   foreach ( $post_types as $post_type ) {
+  //     $field['choices'][ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
+  //   }
+  //
+  //   return $field;
+  // }
 
-    foreach ( $auto_blocks as $auto_block ) {
-      $field['choices'][ 'acf/' . $auto_block['auto_block_key'] ] = $auto_block['title'];
-    }
 
-    return $field;
-  }
+  // // Populate blocks
+  // public function populate_block_select( $field ) {
+  //   $field['choices'] = array();
+  //
+  //   // $auto_blocks = ACF_Auto_Blocks::get_instance()->get_auto_blocks();
+  //   $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
+  //
+  //   $field['choices'][ 'acfab/region' ] = 'Region';
+  //
+  //   foreach ( $auto_blocks as $auto_block ) {
+  //     $field['choices'][ 'acf/' . $auto_block['auto_block_key'] ] = $auto_block['title'];
+  //   }
+  //
+  //   return $field;
+  // }
 
 
   // Modify field group columns
@@ -465,11 +494,11 @@ class ACF_Auto_Block_Settings {
         opacity: 0;
       }
       /* Block Editor */
-      [data-type="acfab/region"] {
+      .editor-styles-wrapper [data-type="acfab/region"] {
         max-width: none;
       }
       @media screen and (min-width: 600px) {
-        [data-type="acfab/region"] {
+        .editor-styles-wrapper [data-type="acfab/region"] {
           margin-right: 0;
           margin-left: 0;
         }
