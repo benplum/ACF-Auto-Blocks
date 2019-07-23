@@ -56,7 +56,11 @@ class ACF_Auto_Block_Converter {
                   layout: layoutKey,
                 },
                 success: function(response, textStatus, jqXHR) {
-                  alert("<?php echo __( 'Conversion Complete', 'acfab' ); ?>");
+                  if (response.indexOf('Error') > -1) {
+                    alert(response);
+                  } else {
+                    alert("<?php echo __( 'Conversion Complete', 'acfab' ); ?>");
+                  }
 
                   console.log(response);
                 },
@@ -80,7 +84,7 @@ class ACF_Auto_Block_Converter {
     $layout_key = $_GET['layout'];
 
     if ( empty( $field_key ) || empty( $layout_key ) ) {
-      echo 'Error';
+      echo 'Error: Missing data';
       die();
     }
 
@@ -89,11 +93,10 @@ class ACF_Auto_Block_Converter {
     $layout = null;
 
     // Find field
-
-    $field = acf_get_field( acf_get_field_id( $field_key ) );
+    $field = get_field_object( $field_key );
 
     if ( empty( $field ) ) {
-      echo 'Field not found';
+      echo 'Error: Field not found';
       die();
     }
 
@@ -107,7 +110,7 @@ class ACF_Auto_Block_Converter {
     }
 
     if ( empty( $layout ) ) {
-      echo 'Layout not found';
+      echo 'Error: Layout not found';
       die();
     }
 
