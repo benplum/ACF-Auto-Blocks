@@ -469,8 +469,9 @@ class ACF_Auto_Block_Settings {
         float: left;
       }
       [data-name="auto_block_icon"] .acf-radio-list .icon {
-        height: 35px;
+        height: auto;
         width: 35px;
+        padding: 10px 5px;
         display: block;
         border-radius: 2px;
         line-height: 50px;
@@ -486,6 +487,9 @@ class ACF_Auto_Block_Settings {
       }
       [data-name="auto_block_icon"] .acf-radio-list svg {
         display: inline-block;
+      }
+      [data-name="auto_block_icon"] .acf-radio-list input:checked + .icon svg path:not([fill="none"]) {
+        fill: #ffffff;
       }
       [data-name="auto_block_icon"] .acf-radio-list input {
         position: absolute;
