@@ -1,6 +1,7 @@
 (function() {
   var registerBlockType = wp.blocks.registerBlockType;
   var el = wp.element.createElement;
+  var dispatch = wp.data.dispatch;
   var InnerBlocks = wp.editor.InnerBlocks;
 
   registerBlockType('acfab/region', {
@@ -16,6 +17,8 @@
     },
 
     edit: function() {
+      dispatch( 'core/block-editor' ).setTemplateValidity( true );
+
       return el('div', { style: { } },
         el(InnerBlocks, {
 					templateLock: false
