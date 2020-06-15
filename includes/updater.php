@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   exit;
 }
 
-class ACF_Auto_Blocks_Updater extends PW_Updater {
+class ACF_Auto_Blocks_Updater extends PW_GitHub_Updater {
 
   public $username = 'benplum';
   public $repository = 'ACF-Auto-Blocks';
@@ -19,6 +19,7 @@ class ACF_Auto_Blocks_Updater extends PW_Updater {
 
     parent::__construct();
   }
+
 }
 
 

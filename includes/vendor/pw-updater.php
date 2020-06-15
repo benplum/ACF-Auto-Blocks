@@ -1,8 +1,8 @@
 <?php
 
-if ( ! class_exists( 'PW_Updater' ) ) {
+if ( ! class_exists( 'PW_GitHub_Updater' ) ) {
 
-class PW_Updater {
+class PW_GitHub_Updater {
 
   protected static $instance;
 
