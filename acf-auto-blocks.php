@@ -38,6 +38,9 @@ class ACF_Auto_Blocks {
     add_filter( 'block_categories', array( $this, 'register_category' ), 999, 2 );
 
     add_action( 'print_default_editor_scripts', array( $this, 'admin_footer_scripts' ), 999 );
+
+    // add_action( 'acf/update_value', array( $this, 'acf_update_value' ), 999, 3 );
+    add_action( 'save_post', array( $this, 'set_post_block_meta' ) );
   }
 
 
@@ -50,7 +53,7 @@ class ACF_Auto_Blocks {
 
   // ACF Init
   public function acf_init() {
-    $this->directory = apply_filters( 'acf/auto_blocks/directory', get_template_directory() . '/acf-blocks' );
+    $this->directory = apply_filters( 'acf/auto_blocks/directory', get_stylesheet_directory() . '/acf-blocks' );
 
     $this->register_blocks();
   }
@@ -106,27 +109,48 @@ class ACF_Auto_Blocks {
 
   // // Register post templates
   // public function register_post_templates() {
-  //   $template_settings = get_field( 'acfab_templates', 'option' );
+  //   $path = acf_get_setting('save_json');
+  //   $path = untrailingslashit( $path );
+
+  //   $file = 'acfab_templates.json';
+  //   $data = array(
+  //     'modified' => current_time( 'timestamp'),
+  //     'templates' => $template_settings,
+  //   );
+
+  //   if ( file_exists( "{$path}/{$file}" ) ) {
+  //     $json = file_get_contents( "{$path}/{$file}" );
+  //     $template_settings = json_decode( $json, true );
+  //   }
+
+  //   if ( empty( $template_settings ) ) {
+  //     $template_settings = get_field( 'acfab_templates', 'option' );
+  //   }
+
+  //   if ( empty( $template_settings ) ) {
+  //     return;
+  //   }
+
   //   $templates = array();
-  //
+  
   //   foreach ( $template_settings as $settings ) {
   //     $template = array();
-  //
+  
   //     foreach ( $settings['acfab_post_template'] as $block ) {
   //       $template[] = array( $block['acfab_block'] );
   //     }
-  //
+  
   //     $templates[ $settings['acfab_post_type'] ] = array(
   //       'template' => $template,
   //       'template_lock' => $settings['acfab_template_lock'],
   //     );
   //   }
-  //
+  
   //   foreach ( $templates as $post_type => $options ) {
   //     $object = get_post_type_object( $post_type );
-  //
+  
   //     $object->template = $options['template'];
-  //
+  
   //     if ( ! empty( $options['template_lock'] ) ) {
   //       $object->template_lock = $options['template_lock'];
   //     }
@@ -251,14 +275,14 @@ class ACF_Auto_Blocks {
 
 
   // Validate location
-  public static function check_block_location($array) {
+  public static function check_block_location( $array ) {
     $check = false;
 
-    foreach ( $array as $arr ) {
-      if ( ! empty( $arr['param'] ) && $arr['param'] == 'block' ) {
+    foreach ( $array as $item ) {
+      if ( ! empty( $item['param'] ) && $item['param'] == 'block' ) {
         $check = true;
-      } else if ( is_array( $arr ) ) {
-        $check = ACF_Auto_Blocks::check_block_location( $arr );
+      } else if ( is_array( $item ) ) {
+        $check = ACF_Auto_Blocks::check_block_location( $item );
       }
 
       if ( $check ) {
@@ -300,6 +324,61 @@ class ACF_Auto_Blocks {
     $options['auto_block_post_types'] = array_unique( $options['auto_block_post_types'] );
 
     return $options;
+  }
+
+
+  // Return block data
+  public static function get_post_blocks( $id = false ) {
+    if ( empty( $id ) ) {
+      $id = get_the_id();
+    }
+  
+    $post = get_post( $id );
+    $blocks = array();
+  
+    if ( has_blocks( $post->post_content ) ) {
+      $all_blocks = parse_blocks( $post->post_content );
+  
+      foreach ( $all_blocks as $block ) {
+        if ( ! empty( $block['blockName'] ) ) {
+          $blocks[] = $block;
+        }
+      }
+    }
+  
+    return $blocks;
+  }
+
+
+  // Save block data as post meta on save
+  public function set_post_block_meta( $post_id ) {
+    $blocks = ACF_Auto_Blocks::get_post_blocks( $post_id );
+
+    foreach ( $blocks as $block ) {
+      if ( strpos( $block['blockName'], 'acf/' ) == 0 ) {
+        $block_id = $block['attrs']['id'];
+
+        foreach ( $block['attrs']['data'] as $key => $val ) {
+          if ( substr( $key, 0, 1 ) !== '_' ) {
+            $field = get_field_object( $key, $block_id );
+
+            if ( ! empty( $field['auto_block_save_to_meta'] ) ) {
+              $meta_key = $field['auto_block_save_to_meta'];
+
+              if ( $meta_key == '_thumbnail_id' ) {
+                set_post_thumbnail( $post_id, $val );
+              } else {
+                update_post_meta( $post_id, $meta_key, $val );
+                update_post_meta( $post_id, '_' . $meta_key, $field['key'] );
+              }
+            }
+
+          }
+        }
+
+      }
+    }
+
   }
 
 }

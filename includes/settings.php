@@ -19,14 +19,16 @@ class ACF_Auto_Block_Settings {
 
   public function __construct() {
     // add_action( 'acf/init', array( $this, 'acf_init' ), 998 );
-    //
+    
     // add_action( 'acf/save_post', array( $this, 'export_templates' ), 999 );
-    //
+    
     // add_filter( 'acf/load_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
     // add_filter( 'acf/prepare_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
-    //
+    
     // add_filter( 'acf/load_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
     // add_filter( 'acf/prepare_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
+
+    //
 
     add_filter( 'manage_edit-acf-field-group_columns', array( $this, 'field_group_columns' ), 999, 1 );
 
@@ -35,6 +37,8 @@ class ACF_Auto_Block_Settings {
     add_action( 'acf/render_field_group_settings', array( $this, 'field_group_settings' ), 999 );
 
     add_action( 'acf/update_field_group', array( $this, 'update_field_group' ), 999 );
+
+    add_action( 'acf/render_field_settings', array( $this, 'acf_render_field_settings' ), 999, 1 );
 
     add_action( 'admin_footer', array( $this, 'admin_footer' ), 999 );
 
@@ -50,9 +54,9 @@ class ACF_Auto_Block_Settings {
   //     'menu_slug' => 'acfab-templates',
   //     'parent_slug' => 'edit.php?post_type=acf-field-group',
   //     'autoload' => true,
-  //     'position' => 0,
+  //     'position' => '1',
   //   ) );
-  //
+  
   //   acf_add_local_field_group( array(
   //     'key' => 'group_5c9258a942887',
   //     'title' => 'Templates',
@@ -141,7 +145,7 @@ class ACF_Auto_Block_Settings {
   //             'collapsed' => '',
   //             'min' => 1,
   //             'max' => 0,
-  //             'layout' => 'row',
+  //             'layout' => 'table',
   //             'button_label' => 'Add Block',
   //             'sub_fields' => array(
   //               array(
@@ -185,7 +189,7 @@ class ACF_Auto_Block_Settings {
   //     ),
   //     'menu_order' => 0,
   //     'position' => 'normal',
-  //     'style' => 'default',
+  //     'style' => 'seamless',
   //     'label_placement' => 'top',
   //     'instruction_placement' => 'label',
   //     'hide_on_screen' => '',
@@ -195,26 +199,26 @@ class ACF_Auto_Block_Settings {
   // }
 
 
-  // //
+  // // Export post templates
   // function export_templates() {
   //   $screen = get_current_screen();
-  //
+  
   //   if ( strpos( $screen->id, 'acfab-templates' ) == true ) {
   //     $path = acf_get_setting('save_json');
   //     $path = untrailingslashit( $path );
-  //
+  
   //     if ( !is_writable( $path ) ) {
   //       return false;
   //     }
-  //
+  
   //     $template_settings = get_field( 'acfab_templates', 'option' );
-  //
+  
   //     $file = 'acfab_templates.json';
   //     $data = array(
   //       'modified' => current_time( 'timestamp'),
   //       'templates' => $template_settings,
   //     );
-  //
+  
   //     $f = fopen( "{$path}/{$file}", 'w' );
   //     fwrite( $f, acf_json_encode( $data ) );
   //     fclose( $f );
@@ -224,16 +228,30 @@ class ACF_Auto_Block_Settings {
 
   // // Populate post types
   // public function populate_post_type_select( $field ) {
-  //   $field['choices'] = array();
-  //
+  //   $types = array();
+  
   //   $post_types = get_post_types( array(
   //     // 'public' => true
   //   ), 'objects' );
-  //
+  
   //   foreach ( $post_types as $post_type ) {
-  //     $field['choices'][ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
+  //     $types[ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
   //   }
-  //
+
+  //   unset( $types['wp_block'] ); //
+  //   unset( $types['attachment'] );
+  //   unset( $types['revision'] );
+  //   unset( $types['nav_menu_item'] );
+  //   unset( $types['custom_css'] );
+  //   unset( $types['customize_changeset'] );
+  //   unset( $types['oembed_cache'] );
+  //   unset( $types['user_request'] );
+  //   unset( $types['np-redirect'] );
+  //   unset( $types['acf-field-group'] );
+  //   unset( $types['acf-field'] );
+
+  //   $field['choices'] = $types;
+  
   //   return $field;
   // }
 
@@ -241,16 +259,16 @@ class ACF_Auto_Block_Settings {
   // // Populate blocks
   // public function populate_block_select( $field ) {
   //   $field['choices'] = array();
-  //
+  
   //   // $auto_blocks = ACF_Auto_Blocks::get_instance()->get_auto_blocks();
   //   $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
-  //
+  
   //   $field['choices'][ 'acfab/region' ] = 'Region';
-  //
+  
   //   foreach ( $auto_blocks as $auto_block ) {
   //     $field['choices'][ 'acf/' . $auto_block['auto_block_key'] ] = $auto_block['title'];
   //   }
-  //
+  
   //   return $field;
   // }
 
@@ -334,6 +352,7 @@ class ACF_Auto_Block_Settings {
       'name' => 'auto_block_key',
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_key'],
+      'required' => true,
     ) );
 
     acf_render_field_wrap( array(
@@ -453,6 +472,17 @@ class ACF_Auto_Block_Settings {
   }
 
 
+  // Draw field settings
+  function acf_render_field_settings( $field ) {
+    acf_render_field_setting( $field, array(
+      'label' => 'Save to meta',
+      'instructions' => 'Auto Block only. Must be unique. Leave blank to disable.',
+      'name' => 'auto_block_save_to_meta',
+      'type' => 'text',
+    ), true );
+  }
+
+
   // Setup admin CSS
   public function admin_footer() {
     ?>
@@ -524,7 +554,12 @@ class ACF_Auto_Block_Settings {
 
           $("#acf_field_group-auto_block").on("change", toggleSettings);
 
+          // $("#acf_field_group-auto_block").on("change", checkMetaStatus);
+          // $("#acf_field_group-auto_block_multiple").on("change", checkMetaStatus);
+          // $("#acf_field_group-auto_block_reusable").on("change", checkMetaStatus);
+
           toggleSettings();
+          // checkMetaStatus();
 
           function toggleSettings() {
             var checked = $("#acf_field_group-auto_block").is(":checked");
@@ -535,6 +570,16 @@ class ACF_Auto_Block_Settings {
               $('[data-name*="auto_block_"]').hide();
             }
           }
+
+          $('[data-name="auto_block_save_to_meta"] .acf-input').append('<p>Save this field\'s value as post meta with the defined key. Note: Using multiple instances of this block on the same post will overwrite each other\'s values. Use sparingly and purposefully.</p>')
+
+          // function checkMetaStatus() {
+          //   var $multiple = $('[name="acf_field_group[auto_block_multiple]"]');
+          //   var $reusable = $('[name="acf_field_group[auto_block_reusable]"]');
+
+          //   console.log($multiple.is(":checked"));
+          // }
+
         });
       })(jQuery);
     </script>
