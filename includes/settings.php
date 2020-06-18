@@ -342,7 +342,7 @@ class ACF_Auto_Block_Settings {
       'name' => 'auto_block',
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block'],
-      'ui' => 1,
+      'ui' => true,
     ) );
 
     acf_render_field_wrap( array(
@@ -352,7 +352,7 @@ class ACF_Auto_Block_Settings {
       'name' => 'auto_block_key',
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_key'],
-      'required' => true,
+      // 'required' => true,
     ) );
 
     acf_render_field_wrap( array(
@@ -393,7 +393,7 @@ class ACF_Auto_Block_Settings {
       'name' => 'auto_block_multiple',
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_multiple'],
-      'ui' => 1,
+      'ui' => true,
     ) );
 
     acf_render_field_wrap( array(
@@ -403,7 +403,7 @@ class ACF_Auto_Block_Settings {
       'name' => 'auto_block_reusable',
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_reusable'],
-      'ui' => 1,
+      'ui' => true,
     ) );
 
     acf_render_field_wrap( array(
@@ -474,6 +474,29 @@ class ACF_Auto_Block_Settings {
 
   // Draw field settings
   function acf_render_field_settings( $field ) {
+    $types = array(
+      // 'text',
+      // 'textarea',
+      // 'link',
+      // 'enhanced_link', // 
+      // 'number',
+      // 'range',
+      // 'url',
+      // 'password',
+      // 
+      'message',
+      'accordian',
+      'tab',
+      'group',
+      'repeater',
+      'flexible_content',
+      'clone',
+    );
+
+    if ( in_array( $field['type'], $types ) ) {
+      return;
+    }
+     
     acf_render_field_setting( $field, array(
       'label' => 'Save to meta',
       'instructions' => 'Auto Block only. Must be unique. Leave blank to disable.',
