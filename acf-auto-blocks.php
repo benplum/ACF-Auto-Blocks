@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the new block editor (Gutenberg).
-Version: 1.1.1
+Version: 1.1.2
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -90,9 +90,10 @@ class ACF_Auto_Blocks {
           'icon'            => $options['auto_block_icon'],
           'keywords'        => $options['auto_block_align'],
           'post_types'      => $options['auto_block_post_types'],
-          'mode'            => 'edit',
-          'render_callback'  => array( $this, 'render_block' ),
+          'mode'            => $options['auto_block_mode_default'],
+          'render_callback' => array( $this, 'render_block' ),
           'supports'        => array(
+            'mode'          => ( $options['auto_block_mode'] == 0 ) ? false : true,
             'align'         => $options['auto_block_align'],
             'multiple'      => $options['auto_block_multiple'],
             'reusable'      => $options['auto_block_reusable'],
@@ -132,25 +133,25 @@ class ACF_Auto_Blocks {
   //   }
 
   //   $templates = array();
-  
+
   //   foreach ( $template_settings as $settings ) {
   //     $template = array();
-  
+
   //     foreach ( $settings['acfab_post_template'] as $block ) {
   //       $template[] = array( $block['acfab_block'] );
   //     }
-  
+
   //     $templates[ $settings['acfab_post_type'] ] = array(
   //       'template' => $template,
   //       'template_lock' => $settings['acfab_template_lock'],
   //     );
   //   }
-  
+
   //   foreach ( $templates as $post_type => $options ) {
   //     $object = get_post_type_object( $post_type );
-  
+
   //     $object->template = $options['template'];
-  
+
   //     if ( ! empty( $options['template_lock'] ) ) {
   //       $object->template_lock = $options['template_lock'];
   //     }
@@ -305,6 +306,8 @@ class ACF_Auto_Blocks {
       'auto_block_align' => array(),
       'auto_block_multiple' => 0,
       'auto_block_reusable' => 0,
+      'auto_block_mode' => true,
+      'auto_block_mode_default' => 'auto',
       'auto_block_post_types' => array( 'wp_block', 'post', 'page' ),
     ) );
 
@@ -332,20 +335,20 @@ class ACF_Auto_Blocks {
     if ( empty( $id ) ) {
       $id = get_the_id();
     }
-  
+
     $post = get_post( $id );
     $blocks = array();
-  
+
     if ( has_blocks( $post->post_content ) ) {
       $all_blocks = parse_blocks( $post->post_content );
-  
+
       foreach ( $all_blocks as $block ) {
         if ( ! empty( $block['blockName'] ) ) {
           $blocks[] = $block;
         }
       }
     }
-  
+
     return $blocks;
   }
 

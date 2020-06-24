@@ -19,12 +19,12 @@ class ACF_Auto_Block_Settings {
 
   public function __construct() {
     // add_action( 'acf/init', array( $this, 'acf_init' ), 998 );
-    
+
     // add_action( 'acf/save_post', array( $this, 'export_templates' ), 999 );
-    
+
     // add_filter( 'acf/load_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
     // add_filter( 'acf/prepare_field/name=acfab_post_type', array( $this, 'populate_post_type_select' ), 999, 1 );
-    
+
     // add_filter( 'acf/load_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
     // add_filter( 'acf/prepare_field/name=acfab_block', array( $this, 'populate_block_select' ), 999, 1 );
 
@@ -56,7 +56,7 @@ class ACF_Auto_Block_Settings {
   //     'autoload' => true,
   //     'position' => '1',
   //   ) );
-  
+
   //   acf_add_local_field_group( array(
   //     'key' => 'group_5c9258a942887',
   //     'title' => 'Templates',
@@ -202,23 +202,23 @@ class ACF_Auto_Block_Settings {
   // // Export post templates
   // function export_templates() {
   //   $screen = get_current_screen();
-  
+
   //   if ( strpos( $screen->id, 'acfab-templates' ) == true ) {
   //     $path = acf_get_setting('save_json');
   //     $path = untrailingslashit( $path );
-  
+
   //     if ( !is_writable( $path ) ) {
   //       return false;
   //     }
-  
+
   //     $template_settings = get_field( 'acfab_templates', 'option' );
-  
+
   //     $file = 'acfab_templates.json';
   //     $data = array(
   //       'modified' => current_time( 'timestamp'),
   //       'templates' => $template_settings,
   //     );
-  
+
   //     $f = fopen( "{$path}/{$file}", 'w' );
   //     fwrite( $f, acf_json_encode( $data ) );
   //     fclose( $f );
@@ -229,11 +229,11 @@ class ACF_Auto_Block_Settings {
   // // Populate post types
   // public function populate_post_type_select( $field ) {
   //   $types = array();
-  
+
   //   $post_types = get_post_types( array(
   //     // 'public' => true
   //   ), 'objects' );
-  
+
   //   foreach ( $post_types as $post_type ) {
   //     $types[ $post_type->name ] = $post_type->label . ' (' . $post_type->name . ')';
   //   }
@@ -251,7 +251,7 @@ class ACF_Auto_Block_Settings {
   //   unset( $types['acf-field'] );
 
   //   $field['choices'] = $types;
-  
+
   //   return $field;
   // }
 
@@ -259,16 +259,16 @@ class ACF_Auto_Block_Settings {
   // // Populate blocks
   // public function populate_block_select( $field ) {
   //   $field['choices'] = array();
-  
+
   //   // $auto_blocks = ACF_Auto_Blocks::get_instance()->get_auto_blocks();
   //   $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
-  
+
   //   $field['choices'][ 'acfab/region' ] = 'Region';
-  
+
   //   foreach ( $auto_blocks as $auto_block ) {
   //     $field['choices'][ 'acf/' . $auto_block['auto_block_key'] ] = $auto_block['title'];
   //   }
-  
+
   //   return $field;
   // }
 
@@ -407,6 +407,31 @@ class ACF_Auto_Block_Settings {
     ) );
 
     acf_render_field_wrap( array(
+      'label' => __( 'Mode Switching', 'acfab' ),
+      'instructions' => '',
+      'type' => 'true_false',
+      'name' => 'auto_block_mode',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_mode'],
+      'ui' => true,
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Default Mode', 'acfab' ),
+      'instructions' => '',
+      'type' => 'button_group',
+      'name' => 'auto_block_mode_default',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_mode_default'],
+      // 'toggle' => true,
+      'choices' => array(
+        'auto' => 'Auto',
+        'preview' => 'Preview',
+        'edit' => 'Edit',
+      ),
+    ) );
+
+    acf_render_field_wrap( array(
       'label' => __( 'Block Alignment', 'acfab' ),
       'instructions' => '',
       'type' => 'checkbox',
@@ -478,12 +503,12 @@ class ACF_Auto_Block_Settings {
       // 'text',
       // 'textarea',
       // 'link',
-      // 'enhanced_link', // 
+      // 'enhanced_link', //
       // 'number',
       // 'range',
       // 'url',
       // 'password',
-      // 
+      //
       'message',
       'accordian',
       'tab',
@@ -496,7 +521,7 @@ class ACF_Auto_Block_Settings {
     if ( in_array( $field['type'], $types ) ) {
       return;
     }
-     
+
     acf_render_field_setting( $field, array(
       'label' => 'Save to meta',
       'instructions' => 'Auto Block only. Must be unique. Leave blank to disable.',
