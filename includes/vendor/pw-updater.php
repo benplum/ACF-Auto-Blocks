@@ -1,10 +1,12 @@
 <?php
 
+// PW GitHub Updater v 1.1.0
+
 if ( ! class_exists( 'PW_GitHub_Updater' ) ) {
 
 class PW_GitHub_Updater {
 
-  protected static $instance;
+  protected static $instances = array();
 
   public $parent;
 
@@ -16,16 +18,14 @@ class PW_GitHub_Updater {
   public static function get_instance() {
     $called_class = get_called_class();
 
-    if ( empty( self::$instance ) && ! ( self::$instance instanceof $called_class ) ) {
-      self::$instance = new $called_class();
+    if ( empty( static::$instances[ $called_class ] ) && ! ( static::$instances[ $called_class ] instanceof $called_class ) ) {
+      static::$instances[ $called_class ] = new $called_class();
     }
 
-    return self::$instance;
+    return static::$instances[ $called_class ];
   }
 
   public function __construct() {
-    // $this->parent = ACF_Auto_Blocks::get_instance();
-
     add_action( 'admin_init', array( $this, 'admin_init' ) );
 
     add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'modify_transient' ), 10, 1 );
