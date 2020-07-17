@@ -18,7 +18,7 @@ class PW_GitHub_Updater {
   public static function get_instance() {
     $called_class = get_called_class();
 
-    if ( empty( static::$instances[ $called_class ] ) && ! ( static::$instances[ $called_class ] instanceof $called_class ) ) {
+    if ( empty( static::$instances[ $called_class ] ) || ! ( static::$instances[ $called_class ] instanceof $called_class ) ) {
       static::$instances[ $called_class ] = new $called_class();
     }
 
