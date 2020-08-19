@@ -161,20 +161,20 @@ class ACF_Auto_Blocks {
 
   // Register editor blocks
   public function register_editor_blocks() {
-  	if ( ! function_exists( 'register_block_type' ) ) {
-  		return;
-  	}
+    if ( ! function_exists( 'register_block_type' ) ) {
+      return;
+    }
 
-  	wp_register_script(
-  		'acfab-blocks',
-  		plugin_dir_url( __FILE__ ) . 'assets/blocks.js',
-  		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
-  		filemtime( plugin_dir_path( __FILE__ ) . 'assets/blocks.js' )
-  	);
+    wp_register_script(
+      'acfab-blocks',
+      plugin_dir_url( __FILE__ ) . 'assets/blocks.js',
+      array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
+      filemtime( plugin_dir_path( __FILE__ ) . 'assets/blocks.js' )
+    );
 
-  	register_block_type( 'w/region', array(
-  		'editor_script' => 'acfab-blocks',
-  	) );
+    register_block_type( 'w/region', array(
+      'editor_script' => 'acfab-blocks',
+    ) );
   }
 
 
@@ -361,18 +361,33 @@ class ACF_Auto_Blocks {
       if ( strpos( $block['blockName'], 'acf/' ) == 0 ) {
         $block_id = $block['attrs']['id'];
 
-        foreach ( $block['attrs']['data'] as $key => $val ) {
-          if ( substr( $key, 0, 1 ) !== '_' ) {
-            $field = get_field_object( $key, $block_id );
+        foreach ( $block['attrs']['data'] as $field_key => $field_val ) {
+          if ( substr( $field_key, 0, 1 ) !== '_' ) {
+            $field = get_field_object( $field_key, $block_id );
 
             if ( ! empty( $field['auto_block_save_to_meta'] ) ) {
-              $meta_key = $field['auto_block_save_to_meta'];
+              $stm_key = $field['auto_block_save_to_meta'];
 
-              if ( $meta_key == '_thumbnail_id' ) {
-                set_post_thumbnail( $post_id, $val );
-              } else {
-                update_post_meta( $post_id, $meta_key, $val );
-                update_post_meta( $post_id, '_' . $meta_key, $field['key'] );
+              if ( $field['type'] == 'repeater' ) { // repeater
+                update_post_meta( $post_id, $stm_key, maybe_serialize( $field_val ) );
+                update_post_meta( $post_id, '_' . $stm_key, $field['key'] );
+
+                foreach ( $block['attrs']['data'] as $subfield_key => $subfield_val ) {
+                  if ( substr( $subfield_key, 0, 1 ) !== '_' && strpos( $subfield_key, $field_key . '_' ) > -1 ) {
+                    $stm_sub_key = str_ireplace( $field_key, $stm_key, $subfield_key );
+
+                    update_post_meta( $post_id, $stm_sub_key, maybe_serialize( $subfield_val ) );
+                    update_post_meta( $post_id, '_' . $stm_sub_key, $block['attrs']['data'][ '_' . $subfield_key ] );
+                  }
+                }
+
+              } else { // Standard fields
+                if ( $stm_key == '_thumbnail_id' ) {
+                  set_post_thumbnail( $post_id, maybe_serialize( $field_val ) );
+                } else {
+                  update_post_meta( $post_id, $stm_key, maybe_serialize( $field_val ) );
+                  update_post_meta( $post_id, '_' . $stm_key, $field['key'] );
+                }
               }
             }
 

@@ -513,7 +513,7 @@ class ACF_Auto_Block_Settings {
       'accordian',
       'tab',
       'group',
-      'repeater',
+      // 'repeater',
       'flexible_content',
       'clone',
     );
