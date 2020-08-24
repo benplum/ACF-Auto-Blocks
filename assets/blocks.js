@@ -3,6 +3,7 @@
   var el = wp.element.createElement;
   var dispatch = wp.data.dispatch;
   var InnerBlocks = wp.editor.InnerBlocks;
+  var RichText = wp.editor.RichText;
 
   registerBlockType('acfab/region', {
 
@@ -16,12 +17,15 @@
       inserter: false
     },
 
-    edit: function() {
+    edit: function(props) {
       dispatch( 'core/block-editor' ).setTemplateValidity( true );
+
+      console.log(InnerBlocks.Content);
 
       return el('div', { style: { } },
         el(InnerBlocks, {
-					templateLock: false
+          template: [ ['core/paragraph', { 'placeholder': 'Begin adding content...' }] ],
+          templateLock: false
         })
       );
     },
