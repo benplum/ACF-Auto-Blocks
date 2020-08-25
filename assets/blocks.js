@@ -2,8 +2,7 @@
   var registerBlockType = wp.blocks.registerBlockType;
   var el = wp.element.createElement;
   var dispatch = wp.data.dispatch;
-  var InnerBlocks = wp.editor.InnerBlocks;
-  var RichText = wp.editor.RichText;
+  var InnerBlocks = wp.blockEditor.InnerBlocks;
 
   registerBlockType('acfab/region', {
 
@@ -19,8 +18,6 @@
 
     edit: function(props) {
       dispatch( 'core/block-editor' ).setTemplateValidity( true );
-
-      console.log(InnerBlocks.Content);
 
       return el('div', { style: { } },
         el(InnerBlocks, {

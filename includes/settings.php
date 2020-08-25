@@ -279,7 +279,8 @@ class ACF_Auto_Block_Settings {
     $last_key = array_pop( $keys );
     $last_val = array_pop( $columns );
 
-    $columns['acf-fg-ab'] = '<i class="acf-icon -dot-3 small acf-js-tooltip" title="' . __( 'Auto Block', 'acfab' ) . '"></i>';
+    // $columns['acf-fg-ab'] = '<i class="acf-icon -dot-3 small acf-js-tooltip" title="' . __( 'Auto Block', 'acfab' ) . '"></i>';
+    $columns['acf-fg-ab'] = __( 'Auto Block', 'acfab' );
     $columns[ $last_key ] = $last_val;
 
     return $columns;
@@ -295,7 +296,9 @@ class ACF_Auto_Block_Settings {
     $auto_block = get_post_meta( $post_id, '_auto_block', true );
 
     if ( ! empty( $auto_block ) ) {
-      echo '<i class="acf-icon -location auto_block small acf-js-tooltip" title="' . __( 'Auto Block', 'acfab' ) . '"></i>';
+      // echo '<i class="acf-icon -location auto_block small acf-js-tooltip" title="' . __( 'Auto Block', 'acfab' ) . '"></i>';
+      echo '<i class="acf-icon -brick auto_block" title="' . __( 'Auto Block', 'acfab' ) . '"></i>';
+      // echo '<span class="dashicons dashicons-block-default"></span>';
     }
   }
 
@@ -536,12 +539,15 @@ class ACF_Auto_Block_Settings {
     ?>
     <style>
       /* Field Group Settings */
-      #acf-field-group-wrap .wp-list-table .column-acf-fg-ab {
+      .acf-admin-field-groups .wp-list-table .column-acf-fg-ab {
         width: 10%;
       }
       .acf-icon.auto_block {
         background-color: #5EE8BF;
         color: #fff;
+      }
+      .acf-icon.auto_block:before {
+        content: "\f12b";
       }
       [data-name="auto_block_icon"] .acf-radio-list li {
         float: left;
