@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the new block editor (Gutenberg).
-Version: 1.1.6
+Version: 1.2.0
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -90,15 +90,20 @@ class ACF_Auto_Blocks {
           'description'     => $options['auto_block_description'],
           'category'        => 'acf_auto_blocks',
           'icon'            => $options['auto_block_icon'],
-          'keywords'        => $options['auto_block_align'],
+          'keywords'        => explode( ',', $options['auto_block_keywords'] ),
           'post_types'      => $options['auto_block_post_types'],
           'mode'            => $options['auto_block_mode_default'],
+          'align_text'      => $options['auto_block_text_align_default'],
+          'align_content'   => $options['auto_block_content_align_default'],
           'render_callback' => array( $this, 'render_block' ),
           'supports'        => array(
             'mode'          => ( $options['auto_block_mode'] == 0 ) ? false : true,
             'align'         => $options['auto_block_align'],
             'multiple'      => $options['auto_block_multiple'],
             'reusable'      => $options['auto_block_reusable'],
+            'align_text'    => $options['auto_block_text_align'],
+            'align_content' => ( $options['auto_block_content_align'] ) ? $options['auto_block_content_align_type'] : '', // 1 or matrix
+            'jsx'           => $options['auto_block_jsx'],
           ),
         );
 
@@ -311,6 +316,13 @@ class ACF_Auto_Blocks {
       'auto_block_mode' => true,
       'auto_block_mode_default' => 'auto',
       'auto_block_post_types' => array( 'wp_block', 'post', 'page' ),
+      'auto_block_text_align' => 0,
+      'auto_block_text_align_default' => '',
+      'auto_block_content_align' => 0,
+      'auto_block_content_align_type' => '',
+      'auto_block_content_align_default' => '',
+      'auto_block_content_align_default_matrix' => '',
+      'auto_block_jsx' => 0,
     ) );
 
     if ( ! is_array( $options['auto_block_align'] ) ) {
@@ -323,6 +335,10 @@ class ACF_Auto_Blocks {
       $options['auto_block_post_types'] = array_filter( array(
         $options['auto_block_post_types']
       ) );
+    }
+
+    if ( $options['auto_block_content_align_type'] == 'matrix' ) {
+      $options['auto_block_content_align_default'] = $options['auto_block_content_align_default_matrix'];
     }
 
     $options['auto_block_post_types'][] = 'wp_block';

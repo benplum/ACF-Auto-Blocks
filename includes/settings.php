@@ -346,6 +346,8 @@ class ACF_Auto_Block_Settings {
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block'],
       'ui' => true,
+      'ui_on_text' => 'On',
+      'ui_off_text' => 'Off',
     ) );
 
     acf_render_field_wrap( array(
@@ -365,6 +367,15 @@ class ACF_Auto_Block_Settings {
       'name' => 'auto_block_description',
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_description'],
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Block Keywords', 'acfab' ),
+      'instructions' => '',
+      'type' => 'text',
+      'name' => 'auto_block_keywords',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_keywords'],
     ) );
 
     acf_render_field_wrap( array(
@@ -397,6 +408,8 @@ class ACF_Auto_Block_Settings {
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_multiple'],
       'ui' => true,
+      'ui_on_text' => 'On',
+      'ui_off_text' => 'Off',
     ) );
 
     acf_render_field_wrap( array(
@@ -407,6 +420,8 @@ class ACF_Auto_Block_Settings {
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_reusable'],
       'ui' => true,
+      'ui_on_text' => 'On',
+      'ui_off_text' => 'Off',
     ) );
 
     acf_render_field_wrap( array(
@@ -417,6 +432,8 @@ class ACF_Auto_Block_Settings {
       'prefix' => 'acf_field_group',
       'value' => $options['auto_block_mode'],
       'ui' => true,
+      'ui_on_text' => 'On',
+      'ui_off_text' => 'Off',
     ) );
 
     acf_render_field_wrap( array(
@@ -449,6 +466,104 @@ class ACF_Auto_Block_Settings {
         'wide' => 'Wide',
         'full' => 'Full',
       ),
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Text Alignment', 'acfab' ),
+      'instructions' => '',
+      'type' => 'true_false',
+      'name' => 'auto_block_text_align',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_text_align'],
+      'ui' => true,
+      'ui_on_text' => 'On',
+      'ui_off_text' => 'Off',
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Default Text Alignment', 'acfab' ),
+      'instructions' => '',
+      'type' => 'button_group',
+      'name' => 'auto_block_text_align_default',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_text_align_default'],
+      'choices' => array(
+        'left' => 'Left',
+        'center' => 'Center',
+        'right' => 'Right',
+      ),
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Content Alignment', 'acfab' ),
+      'instructions' => '',
+      'type' => 'true_false',
+      'name' => 'auto_block_content_align',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_content_align'],
+      'ui' => true,
+      'ui_on_text' => 'On',
+      'ui_off_text' => 'Off',
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Content Alignment Type', 'acfab' ),
+      'instructions' => '',
+      'type' => 'button_group',
+      'name' => 'auto_block_content_align_type',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_content_align_type'],
+      'choices' => array(
+        '1' => 'Vertical',
+        'matrix' => 'Matrix',
+      ),
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Default Content Alignment', 'acfab' ),
+      'instructions' => '',
+      'type' => 'button_group',
+      'name' => 'auto_block_content_align_default',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_content_align_default'],
+      'layout' => 'vertical',
+      'choices' => array(
+        'top' => 'Top',
+        'center' => 'Center',
+        'bottom' => 'Bottom',
+      ),
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'Default Content Alignment', 'acfab' ),
+      'instructions' => '',
+      'type' => 'button_group',
+      'name' => 'auto_block_content_align_default_matrix',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_content_align_default_matrix'],
+      'choices' => array(
+        'top left' => 'Top Left',
+        'top center' => 'Top Center',
+        'top right' => 'Top Right',
+        'center left' => 'Center Left',
+        'center center' => 'Center Center',
+        'center right' => 'Center Right',
+        'bottom left' => 'Bottom Left',
+        'bottom center' => 'Bottom Center',
+        'bottom right' => 'Bottom Right',
+      ),
+    ) );
+
+    acf_render_field_wrap( array(
+      'label' => __( 'InnerBlocks (JSX)', 'acfab' ),
+      'instructions' => '',
+      'type' => 'true_false',
+      'name' => 'auto_block_jsx',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_jsx'],
+      'ui' => true,
+      'ui_on_text' => 'On',
+      'ui_off_text' => 'Off',
     ) );
   }
 
@@ -591,6 +706,39 @@ class ACF_Auto_Block_Settings {
           margin-left: 0;
         }
       }
+
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group {
+        display: flex;
+        flex-wrap: wrap;
+        max-width: 500px;
+      }
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label {
+        flex: 0 0 29%;
+        box-sizing: border-box;
+        overflow: hidden;
+        text-overflow: elipsis;
+        white-space: nowrap;
+      }
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(1) {
+        border-radius: 2px 0 0 0;
+      }
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(3) {
+        border-radius: 0 2px 0 0;
+      }
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(7) {
+        border-radius: 0 0 0 2px;
+      }
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(9) {
+        border-radius: 0 0 2px 0;
+      }
+
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(4),
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(5),
+      [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(6) {
+        margin-top: -1px;
+        margin-bottom: -1px;
+      }
+
     </style>
     <?php
   }
@@ -608,31 +756,58 @@ class ACF_Auto_Block_Settings {
 
           $("#acf_field_group-auto_block").on("change", toggleSettings);
 
-          // $("#acf_field_group-auto_block").on("change", checkMetaStatus);
-          // $("#acf_field_group-auto_block_multiple").on("change", checkMetaStatus);
-          // $("#acf_field_group-auto_block_reusable").on("change", checkMetaStatus);
+          $("#acf_field_group-auto_block_mode").on("change", checkSettings);
+          $("#acf_field_group-auto_block_text_align").on("change", checkSettings);
+          $("#acf_field_group-auto_block_content_align").on("change", checkSettings);
+          $('[name="acf_field_group[auto_block_content_align_type]"]').on("change", checkSettings);
 
           toggleSettings();
-          // checkMetaStatus();
+          checkSettings();
+
+          $('[data-name="auto_block_save_to_meta"] .acf-input').append('<p>Save this field\'s value as post meta with the defined key. Note: Using multiple instances of this block on the same post will overwrite each other\'s values. Use sparingly and purposefully.</p>')
 
           function toggleSettings() {
-            var checked = $("#acf_field_group-auto_block").is(":checked");
-
-            if (checked) {
+            // ACFAB Settings
+            if ($("#acf_field_group-auto_block").is(":checked")) {
               $('[data-name*="auto_block_"]').show();
             } else {
               $('[data-name*="auto_block_"]').hide();
             }
           }
 
-          $('[data-name="auto_block_save_to_meta"] .acf-input').append('<p>Save this field\'s value as post meta with the defined key. Note: Using multiple instances of this block on the same post will overwrite each other\'s values. Use sparingly and purposefully.</p>')
+          function checkSettings() {
+            // Mode
+            if ($("#acf_field_group-auto_block_mode").is(":checked")) {
+              $('[data-name="auto_block_mode_default"]').show();
+            } else {
+              $('[data-name="auto_block_mode_default"]').hide();
+            }
 
-          // function checkMetaStatus() {
-          //   var $multiple = $('[name="acf_field_group[auto_block_multiple]"]');
-          //   var $reusable = $('[name="acf_field_group[auto_block_reusable]"]');
+            // Text Alignment
+            if ($("#acf_field_group-auto_block_text_align").is(":checked")) {
+              $('[data-name="auto_block_text_align_default"]').show();
+            } else {
+              $('[data-name="auto_block_text_align_default"]').hide();
+            }
 
-          //   console.log($multiple.is(":checked"));
-          // }
+            // Content Alignment
+            if ($("#acf_field_group-auto_block_content_align").is(":checked")) {
+              $('[data-name="auto_block_content_align_type"]').show();
+
+              // Content Alignment Type
+              if ( $('[name="acf_field_group[auto_block_content_align_type]"]').filter(":checked").val() == '1' ) {
+                $('[data-name="auto_block_content_align_default"]').show();
+                $('[data-name="auto_block_content_align_default_matrix"]').hide();
+              } else {
+                $('[data-name="auto_block_content_align_default"]').hide();
+                $('[data-name="auto_block_content_align_default_matrix"]').show();
+              }
+            } else {
+              $('[data-name="auto_block_content_align_type"]').hide();
+              $('[data-name*="auto_block_content_align_default"]').hide();
+            }
+
+          }
 
         });
       })(jQuery);
