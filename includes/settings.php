@@ -756,7 +756,7 @@ class ACF_Auto_Block_Settings {
 
           $("#acf_field_group-auto_block").on("change", toggleSettings);
 
-          $("#acf_field_group-auto_block_mode").on("change", checkSettings);
+          // $("#acf_field_group-auto_block_mode").on("change", checkSettings);
           $("#acf_field_group-auto_block_text_align").on("change", checkSettings);
           $("#acf_field_group-auto_block_content_align").on("change", checkSettings);
           $('[name="acf_field_group[auto_block_content_align_type]"]').on("change", checkSettings);
@@ -776,12 +776,12 @@ class ACF_Auto_Block_Settings {
           }
 
           function checkSettings() {
-            // Mode
-            if ($("#acf_field_group-auto_block_mode").is(":checked")) {
-              $('[data-name="auto_block_mode_default"]').show();
-            } else {
-              $('[data-name="auto_block_mode_default"]').hide();
-            }
+            // // Mode
+            // if ($("#acf_field_group-auto_block_mode").is(":checked")) {
+            //   $('[data-name="auto_block_mode_default"]').show();
+            // } else {
+            //   $('[data-name="auto_block_mode_default"]').hide();
+            // }
 
             // Text Alignment
             if ($("#acf_field_group-auto_block_text_align").is(":checked")) {
