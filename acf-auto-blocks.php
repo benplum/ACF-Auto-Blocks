@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the new block editor (Gutenberg).
-Version: 1.2.1
+Version: 1.2.2
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -387,23 +387,23 @@ class ACF_Auto_Blocks {
               $stm_key = $field['auto_block_save_to_meta'];
 
               if ( $field['type'] == 'repeater' ) { // repeater
-                update_post_meta( $post_id, $stm_key, maybe_serialize( $field_val ) );
+                update_post_meta( $post_id, $stm_key, $field_val );
                 update_post_meta( $post_id, '_' . $stm_key, $field['key'] );
 
                 foreach ( $block['attrs']['data'] as $subfield_key => $subfield_val ) {
                   if ( substr( $subfield_key, 0, 1 ) !== '_' && strpos( $subfield_key, $field_key . '_' ) > -1 ) {
                     $stm_sub_key = str_ireplace( $field_key, $stm_key, $subfield_key );
 
-                    update_post_meta( $post_id, $stm_sub_key, maybe_serialize( $subfield_val ) );
+                    update_post_meta( $post_id, $stm_sub_key, $subfield_val );
                     update_post_meta( $post_id, '_' . $stm_sub_key, $block['attrs']['data'][ '_' . $subfield_key ] );
                   }
                 }
 
               } else { // Standard fields
                 if ( $stm_key == '_thumbnail_id' ) {
-                  set_post_thumbnail( $post_id, maybe_serialize( $field_val ) );
+                  set_post_thumbnail( $post_id, $field_val );
                 } else {
-                  update_post_meta( $post_id, $stm_key, maybe_serialize( $field_val ) );
+                  update_post_meta( $post_id, $stm_key, $field_val );
                   update_post_meta( $post_id, '_' . $stm_key, $field['key'] );
                 }
               }
