@@ -452,6 +452,22 @@ class ACF_Auto_Block_Settings {
     ) );
 
     acf_render_field_wrap( array(
+      'label' => __( 'Screenshot', 'acfab' ),
+      'instructions' => __( 'Use a static image as the block preview.', 'acfab' ),
+      'type' => 'image',
+      'name' => 'auto_block_screenshot',
+      'prefix' => 'acf_field_group',
+      'value' => $options['auto_block_screenshot'],
+      ''
+      // 'toggle' => true,
+      // 'choices' => array(
+      //   'auto' => 'Auto',
+      //   'preview' => 'Preview',
+      //   'edit' => 'Edit',
+      // ),
+    ) );
+
+    acf_render_field_wrap( array(
       'label' => __( 'Block Alignment', 'acfab' ),
       'instructions' => '',
       'type' => 'checkbox',
@@ -737,6 +753,10 @@ class ACF_Auto_Block_Settings {
       [data-name="auto_block_content_align_default_matrix"] .acf-button-group label:nth-child(6) {
         margin-top: -1px;
         margin-bottom: -1px;
+      }
+
+      .acfab_preview_image {
+        width: 100%;
       }
 
     </style>

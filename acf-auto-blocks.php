@@ -105,6 +105,15 @@ class ACF_Auto_Blocks {
             'align_content' => ( $options['auto_block_content_align'] ) ? $options['auto_block_content_align_type'] : '', // 1 or matrix
             'jsx'           => $options['auto_block_jsx'],
           ),
+          'example'         => array(
+            'attributes'    => array(
+              'mode'        => 'preview',
+              'data'        => array(
+                'screenshot' => $options['auto_block_screenshot'],
+                'is_preview' => true,
+              ),
+            ),
+          ),
         );
 
         $args = apply_filters( 'acf/auto_blocks/parse_block_options', $args );
@@ -191,11 +200,19 @@ class ACF_Auto_Blocks {
 
     ob_start();
 
-    $this->template_part( $slug, array(
-      'is_admin' => is_admin(),
-      'block' => $block,
-      'data' => get_fields(),
-    ) );
+    $is_preview = get_field( 'is_preview' );
+
+    if ( $is_preview && ! empty( $block['example']['attributes']['data']['screenshot'] ) ) {
+      $src = wp_get_attachment_image_src( $block['example']['attributes']['data']['screenshot'], 'medium' );
+
+      echo '<img src="' . $src[0] . '" alt="" class="acfab_preview_image">';
+    } else {
+      $this->template_part( $slug, array(
+        'is_admin' => is_admin(),
+        'block' => $block,
+        'data' => get_fields(),
+      ) );
+    }
 
     $content = ob_get_clean();
 
