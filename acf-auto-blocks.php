@@ -207,11 +207,15 @@ class ACF_Auto_Blocks {
 
       echo '<img src="' . $src[0] . '" alt="" class="acfab_preview_image">';
     } else {
+      acf_setup_meta( $block['data'], $block['id'], true );
+
       $this->template_part( $slug, array(
         'is_admin' => is_admin(),
         'block' => $block,
         'data' => get_fields(),
       ) );
+
+      acf_reset_meta( $block['id'] );
     }
 
     $content = ob_get_clean();
