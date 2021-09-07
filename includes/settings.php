@@ -684,9 +684,9 @@ class ACF_Auto_Block_Settings {
         float: left;
       }
       [data-name="auto_block_icon"] .acf-radio-list .icon {
-        height: auto;
+        height: 35px;
         width: 35px;
-        padding: 10px 5px;
+        padding: 5px;
         display: block;
         border-radius: 2px;
         line-height: 50px;
@@ -703,7 +703,8 @@ class ACF_Auto_Block_Settings {
       [data-name="auto_block_icon"] .acf-radio-list svg {
         display: inline-block;
       }
-      [data-name="auto_block_icon"] .acf-radio-list input:checked + .icon svg path:not([fill="none"]) {
+      [data-name="auto_block_icon"] .acf-radio-list input:checked + .icon svg path:not([fill="none"]),
+      [data-name="auto_block_icon"] .acf-radio-list input:checked + .icon svg circle:not([fill="none"]) {
         fill: #ffffff;
       }
       [data-name="auto_block_icon"] .acf-radio-list input {
@@ -773,6 +774,10 @@ class ACF_Auto_Block_Settings {
           if (typeof acf == "undefined" || !acf) {
             return;
           }
+
+          $('[name="acf_field_group[auto_block_icon]"]').each(function() {
+            $(this).next('.icon').html( $(this).val() );
+          });
 
           $("#acf_field_group-auto_block").on("change", toggleSettings);
 
