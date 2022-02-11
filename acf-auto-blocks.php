@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the new block editor (Gutenberg).
-Version: 1.3.5
+Version: 1.3.6
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -35,7 +35,8 @@ class ACF_Auto_Blocks {
 
     add_action( 'acf/init', array( $this, 'acf_init' ), 999 );
 
-    add_filter( 'block_categories', array( $this, 'register_category' ), 999, 2 );
+    // add_filter( 'block_categories', array( $this, 'register_category' ), 999, 2 );
+    add_filter( 'block_categories_all', array( $this, 'register_category' ), 999, 2 );
 
     add_action( 'print_default_editor_scripts', array( $this, 'admin_footer_scripts' ), 999 );
 
@@ -202,18 +203,25 @@ class ACF_Auto_Blocks {
 
     $is_preview = get_field( 'is_preview' );
 
-    if ( $is_preview && ! empty( $block['example']['attributes']['data']['screenshot'] ) ) {
-      $src = wp_get_attachment_image_src( $block['example']['attributes']['data']['screenshot'], 'medium' );
+    if ( $is_preview /* && ! empty( $block['example']['attributes']['data']['screenshot'] ) */ ) {
+      if ( ! empty( $block['example']['attributes']['data']['screenshot'] ) ) {
+        $src = wp_get_attachment_image_src( $block['example']['attributes']['data']['screenshot'], 'medium' );
+        $preview = '<img src="' . $src[0] . '" alt="" class="acfab_preview_image">';
+      } else {
+        $preview = '<p>' . $block['title'] . ' (' . $block['name'] . ')</p>';
+      }
 
-      echo '<img src="' . $src[0] . '" alt="" class="acfab_preview_image">';
+      echo apply_filters( 'acf/auto_blocks/block_preview', $preview, $block );
     } else {
       // acf_setup_meta( $block['data'], $block['id'], true );
+
+      $data = apply_filters( 'acf/auto_blocks/block_data', get_fields(), $block );
 
       $this->template_part( $slug, array(
         'is_admin' => is_admin(),
         'block' => $block,
         // 'data' => $block['data'],
-        'data' => get_fields(),
+        'data' => $data,
       ) );
 
       // acf_reset_meta( $block['id'] );
@@ -404,14 +412,14 @@ class ACF_Auto_Blocks {
 
         foreach ( $block['attrs']['data'] as $field_key => $field_val ) {
           if ( substr( $field_key, 0, 1 ) !== '_' ) {
-            $field = get_field_object( $field_key, $block_id );
+            $field_obj = get_field_object( $field_key, $block_id );
 
-            if ( ! empty( $field['auto_block_save_to_meta'] ) ) {
-              $stm_key = $field['auto_block_save_to_meta'];
+            if ( ! empty( $field_obj['auto_block_save_to_meta'] ) ) {
+              $stm_key = $field_obj['auto_block_save_to_meta'];
 
-              if ( $field['type'] == 'repeater' ) { // repeater
+              if ( $field_obj['type'] == 'repeater' ) { // repeater
                 update_post_meta( $post_id, $stm_key, $field_val );
-                update_post_meta( $post_id, '_' . $stm_key, $field['key'] );
+                update_post_meta( $post_id, '_' . $stm_key, $field_obj['key'] );
 
                 foreach ( $block['attrs']['data'] as $subfield_key => $subfield_val ) {
                   if ( substr( $subfield_key, 0, 1 ) !== '_' && strpos( $subfield_key, $field_key . '_' ) > -1 ) {
@@ -424,10 +432,11 @@ class ACF_Auto_Blocks {
 
               } else { // Standard fields
                 if ( $stm_key == '_thumbnail_id' ) {
-                  set_post_thumbnail( $post_id, $field_val );
+                  // set_post_thumbnail( $post_id, $field_val );
+                  update_post_meta( $post_id, $stm_key, $field_val );
                 } else {
                   update_post_meta( $post_id, $stm_key, $field_val );
-                  update_post_meta( $post_id, '_' . $stm_key, $field['key'] );
+                  update_post_meta( $post_id, '_' . $stm_key, $field_obj['key'] );
                 }
               }
             }

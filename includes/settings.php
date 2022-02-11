@@ -757,7 +757,11 @@ class ACF_Auto_Block_Settings {
       }
 
       .acfab_preview_image {
+        display: block;
+        max-width: 1000px;
         width: 100%;
+        object-fit: scale-down;
+        object-position: center;
       }
 
     </style>
