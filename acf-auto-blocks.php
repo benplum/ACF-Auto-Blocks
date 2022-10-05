@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the new block editor (Gutenberg).
-Version: 1.3.6
+Version: 1.3.7
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -408,11 +408,12 @@ class ACF_Auto_Blocks {
 
     foreach ( $blocks as $block ) {
       if ( strpos( $block['blockName'], 'acf/' ) == 0 ) {
-        $block_id = $block['attrs']['id'];
+        // $block_id = $block['attrs']['id'];
 
         foreach ( $block['attrs']['data'] as $field_key => $field_val ) {
-          if ( substr( $field_key, 0, 1 ) !== '_' ) {
-            $field_obj = get_field_object( $field_key, $block_id );
+          if ( substr( $field_key, 0, 1 ) !== '_' && ! empty( $block['attrs']['data'][ '_' . $field_key ] ) ) {
+            // $field_obj = get_field_object( $field_key, $block_id );
+            $field_obj = get_field_object( $block['attrs']['data'][ '_' . $field_key ] );
 
             if ( ! empty( $field_obj['auto_block_save_to_meta'] ) ) {
               $stm_key = $field_obj['auto_block_save_to_meta'];
