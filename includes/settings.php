@@ -5,13 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
   exit;
 }
 
-class ACF_Auto_Block_Settings {
+class ACF_Auto_Blocks_Settings {
 
   protected static $instance;
 
   public static function get_instance() {
-    if ( empty( self::$instance ) && ! ( self::$instance instanceof ACF_Auto_Block_Settings ) ) {
-      self::$instance = new ACF_Auto_Block_Settings();
+    if ( empty( self::$instance ) && ! ( self::$instance instanceof ACF_Auto_Blocks_Settings ) ) {
+      self::$instance = new ACF_Auto_Blocks_Settings();
     }
 
     return self::$instance;
@@ -305,7 +305,7 @@ class ACF_Auto_Block_Settings {
 
   // Draw field group settings
   public function field_group_settings( $field_group ) {
-    $options = ACF_Auto_Blocks::parse_options( $field_group );
+    $options = ACF_Auto_Blocks::parse_options_v1( $field_group );
 
     $post_types = get_post_types( array(
       // 'public' => true
@@ -339,8 +339,8 @@ class ACF_Auto_Block_Settings {
     unset( $types['acf-field'] );
 
     acf_render_field_wrap( array(
-      'label' => __( 'Auto Block', 'acfab' ),
-      'instructions' => __( 'Auto register this field group as a Gutenberg block. Don\'t forget to create a new template partial.', 'acfab' ),
+      'label' => __( 'Auto Block (V1)', 'acfab' ),
+      'instructions' => __( '<b>Important: This option is being deprecated in favor of block.json (V2).</b> <a href="#">Learn more about ACF Blocks V2</a> <br> Auto register this field group as a Gutenberg block. Don\'t forget to create a new template partial.', 'acfab' ),
       'type' => 'true_false',
       'name' => 'auto_block',
       'prefix' => 'acf_field_group',
@@ -595,7 +595,7 @@ class ACF_Auto_Block_Settings {
         $block_key = $field_group['auto_block_key'];
       }
 
-      $field_group = ACF_Auto_Blocks::parse_options( $field_group );
+      $field_group = ACF_Auto_Blocks::parse_options_v1( $field_group );
 
       foreach ( $field_group['location'] as $location_set ) {
         foreach ( $location_set as $location ) {
@@ -632,6 +632,7 @@ class ACF_Auto_Block_Settings {
 
 
   // Draw field settings
+  // TODO: make this work with V2 (right now it hides if auto block check box is disbaled)
   function acf_render_field_settings( $field ) {
     $types = array(
       // 'text',
@@ -849,4 +850,4 @@ class ACF_Auto_Block_Settings {
 
 // Instance
 
-ACF_Auto_Block_Settings::get_instance();
+ACF_Auto_Blocks_Settings::get_instance();

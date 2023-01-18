@@ -1,8 +1,6 @@
 # ACF Auto Blocks
 
-Auto-register ACF field groups as blocks in the new editor (Gutenberg).
-
-Requires ACF Pro 5.8-beta3 or later. [Read more about ACF Blocks for Gutenberg](https://www.advancedcustomfields.com/blog/acf-5-8-introducing-acf-blocks-for-gutenberg/).
+Auto-register ACF field groups as blocks in the block editor.
 
 ## Rendering Blocks
 

@@ -2,8 +2,8 @@
 /*
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
-Description: Auto-register ACF field groups as blocks in the new block editor (Gutenberg).
-Version: 1.3.7
+Description: Auto-register ACF field groups as blocks in the block editor.
+Version: 2.0.0-1
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -31,61 +31,92 @@ class ACF_Auto_Blocks {
   }
 
   public function __construct() {
-    add_action( 'init', array( $this, 'init' ), 999 );
+    add_action( 'init', [ $this, 'init' ], 999 );
 
-    add_action( 'acf/init', array( $this, 'acf_init' ), 999 );
+    add_action( 'acf/init', [ $this, 'acf_init' ], 999 );
 
-    // add_filter( 'block_categories', array( $this, 'register_category' ), 999, 2 );
-    add_filter( 'block_categories_all', array( $this, 'register_category' ), 999, 2 );
+    add_filter( 'acf/settings/load_json', [ $this, 'acf_load_json' ], 999 );
+    add_filter( 'acf/settings/save_json', [ $this, 'acf_save_json' ], 999 );
 
-    add_action( 'print_default_editor_scripts', array( $this, 'admin_footer_scripts' ), 999 );
+    add_filter( 'block_categories_all', [ $this, 'register_category' ], 999, 2 );
 
-    // add_action( 'acf/update_value', array( $this, 'acf_update_value' ), 999, 3 );
-    add_action( 'save_post', array( $this, 'set_post_block_meta' ) );
+    add_action( 'print_default_editor_scripts', [ $this, 'admin_footer_scripts' ], 999 );
+
+    add_action( 'save_post', [ $this, 'set_post_block_meta' ] );
   }
 
 
   // Init
   public function init() {
-    // $this->register_post_templates();
     $this->register_editor_blocks();
   }
 
 
   // ACF Init
   public function acf_init() {
-    $this->directory = apply_filters( 'acf/auto_blocks/directory', get_stylesheet_directory() . '/acf-blocks' );
+    $this->directory = ACF_Auto_Blocks::get_directory();
 
-    $this->register_blocks();
+    $this->register_blocks_v1();
+    $this->register_blocks_v2();
+  }
+
+
+  // ACF Load JSON
+  public function acf_load_json( $paths ) {
+    // Block V2 Support
+    $auto_blocks = ACF_Auto_Blocks::get_auto_blocks_v2();
+
+    foreach ( $auto_blocks as $auto_block ) {
+      $paths[] = $auto_block['dir'];
+    }
+
+    return $paths;
+  }
+
+
+  // ACF Save JSON
+  public function acf_save_json( $path ) {
+    // Block V2 Support
+    if ( ! empty( $_POST['acf_field_group']['key'] ) ) {
+      $slug = $_POST['acf_field_group']['key'];
+
+      if ( strpos( $slug, 'group_block_' ) > -1 ) {
+        $block = $this->directory . '/' . str_ireplace( [ 'group_block_', '_' ], [ '', '-' ], $slug );
+
+        if ( is_dir( $block ) ) {
+          $path = $block;
+        }
+      }
+    }
+
+    return $path;
   }
 
 
   // Register category
   public function register_category( $categories, $post ) {
-    $categories = array_merge( array(
-      array(
+    $categories = array_merge( [
+      [
         'slug' => 'acf_auto_blocks',
         'title' => __( 'Auto Blocks', 'acfab' ),
         'icon'  => '',
-      )
-    ), $categories );
+      ],
+    ], $categories );
 
     return $categories;
   }
 
 
-  // Register blocks
-  public function register_blocks() {
+  // Register blocks - v1
+  public function register_blocks_v1() {
     if ( function_exists('acf_register_block') ) {
-      // $auto_blocks = $this->get_auto_blocks();
-      $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
+      $auto_blocks = ACF_Auto_Blocks::get_auto_blocks_v1();
 
       foreach ( $auto_blocks as $auto_block ) {
-        // $field_group = acf_get_field_group( $auto_block['ID'] );
         $field_group = $auto_block;
-        $options = ACF_Auto_Blocks::parse_options( $field_group );
+        $options = ACF_Auto_Blocks::parse_options_v1( $field_group );
 
-        $args = array(
+        $args = [
           'name'            => $options['auto_block_key'],
           'title'           => $options['title'],
           'description'     => $options['auto_block_description'],
@@ -96,8 +127,8 @@ class ACF_Auto_Blocks {
           'mode'            => $options['auto_block_mode_default'],
           'align_text'      => $options['auto_block_text_align_default'],
           'align_content'   => $options['auto_block_content_align_default'],
-          'render_callback' => array( $this, 'render_block' ),
-          'supports'        => array(
+          'render_callback' => [ $this, 'render_block_v1' ],
+          'supports'        => [
             'mode'          => ( $options['auto_block_mode'] == 0 ) ? false : true,
             'align'         => $options['auto_block_align'],
             'multiple'      => $options['auto_block_multiple'],
@@ -105,21 +136,39 @@ class ACF_Auto_Blocks {
             'align_text'    => $options['auto_block_text_align'],
             'align_content' => ( $options['auto_block_content_align'] ) ? $options['auto_block_content_align_type'] : '', // 1 or matrix
             'jsx'           => $options['auto_block_jsx'],
-          ),
-          'example'         => array(
-            'attributes'    => array(
+          ],
+          'example'         => [
+            'attributes'    => [
               'mode'        => 'preview',
-              'data'        => array(
+              'data'        => [
                 'screenshot' => $options['auto_block_screenshot'],
                 'is_preview' => true,
-              ),
-            ),
-          ),
-        );
+              ],
+            ],
+          ],
+        ];
 
-        $args = apply_filters( 'acf/auto_blocks/parse_block_options', $args );
+        $args = apply_filters( 'acf/auto_blocks/parse_block_options', $args ); // Deprecated
+        $args = apply_filters( 'acf/auto_blocks/v1/parse_block_options', $args );
 
         acf_register_block( $args );
+      }
+    }
+  }
+
+  // Register blocks - v2
+  public function register_blocks_v2() {
+    if ( function_exists('register_block_type') ) {
+      $auto_blocks = ACF_Auto_Blocks::get_auto_blocks_v2();
+
+      foreach ( $auto_blocks as $auto_block ) {
+        $options = [
+          'render_callback' => [ $this, 'render_block_v2' ],
+        ];
+
+        $options = apply_filters( 'acf/auto_blocks/v2/parse_block_options', $options );
+
+        register_block_type( $auto_block['dir'], $options );
       }
     }
   }
@@ -149,10 +198,10 @@ class ACF_Auto_Blocks {
   //     return;
   //   }
 
-  //   $templates = array();
+  //   $templates = [];
 
   //   foreach ( $template_settings as $settings ) {
-  //     $template = array();
+  //     $template = [];
 
   //     foreach ( $settings['acfab_post_template'] as $block ) {
   //       $template[] = array( $block['acfab_block'] );
@@ -185,25 +234,39 @@ class ACF_Auto_Blocks {
     wp_register_script(
       'acfab-blocks',
       plugin_dir_url( __FILE__ ) . 'assets/blocks.js',
-      array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ),
+      [ 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ],
       filemtime( plugin_dir_path( __FILE__ ) . 'assets/blocks.js' )
     );
 
-    register_block_type( 'w/region', array(
+    register_block_type( 'w/region', [
       'editor_script' => 'acfab-blocks',
-    ) );
+    ] );
+  }
+
+
+  // Render block - v1
+  public function render_block_v1( $block ) {
+    $slug = str_replace( 'acf/', '', $block['name'] );
+
+    $this->do_render_block( $block, $slug );
+  }
+
+
+  // Render block - v2
+  public function render_block_v2( $block ) {
+    $slug = str_replace( 'acf/block-', '', $block['name'] );
+
+    $this->do_render_block( $block, $slug );
   }
 
 
   // Render block
-  public function render_block( $block ) {
-    $slug = str_replace( 'acf/', '', $block['name'] );
-
+  public function do_render_block( $block, $slug ) {
     ob_start();
 
     $is_preview = get_field( 'is_preview' );
 
-    if ( $is_preview /* && ! empty( $block['example']['attributes']['data']['screenshot'] ) */ ) {
+    if ( $is_preview ) {
       if ( ! empty( $block['example']['attributes']['data']['screenshot'] ) ) {
         $src = wp_get_attachment_image_src( $block['example']['attributes']['data']['screenshot'], 'medium' );
         $preview = '<img src="' . $src[0] . '" alt="" class="acfab_preview_image">';
@@ -213,27 +276,22 @@ class ACF_Auto_Blocks {
 
       echo apply_filters( 'acf/auto_blocks/block_preview', $preview, $block );
     } else {
-      // acf_setup_meta( $block['data'], $block['id'], true );
-
       $data = apply_filters( 'acf/auto_blocks/block_data', get_fields(), $block );
 
-      $this->template_part( $slug, array(
+      $this->template_part( $slug . '/template', [
         'is_admin' => is_admin(),
         'block' => $block,
-        // 'data' => $block['data'],
         'data' => $data,
-      ) );
-
-      // acf_reset_meta( $block['id'] );
+      ] );
     }
 
     $content = ob_get_clean();
 
     if ( is_admin() ) {
-      echo apply_filters( 'acf/auto_blocks/render_block', $content, $block );
-    } else {
-      echo $content;
+      $content = apply_filters( 'acf/auto_blocks/render_block', $content, $block );
     }
+
+    echo $content;
   }
 
 
@@ -259,49 +317,51 @@ class ACF_Auto_Blocks {
 
   // Hide blocks based on post type
   function admin_footer_scripts() {
-    $blacklist = array();
+    $blocklist = [];
     $post_type = get_post_type();
-    // $auto_blocks = $this->get_auto_blocks();
-    $auto_blocks = ACF_Auto_Blocks::get_auto_blocks();
+    $auto_blocks = ACF_Auto_Blocks::get_auto_blocks_v1();
 
     foreach ( $auto_blocks as $auto_block ) {
-      // $field_group = acf_get_field_group( $auto_block['ID'] );
       $field_group = $auto_block;
-      $options = ACF_Auto_Blocks::parse_options( $field_group );
+      $options = ACF_Auto_Blocks::parse_options_v1( $field_group );
 
       if ( ! in_array( $post_type, $options['auto_block_post_types'] ) ) {
-        $blacklist[] = 'acf/' . $options['auto_block_key'];
+        $blocklist[] = 'acf/' . $options['auto_block_key'];
       }
     }
 
-    ?>
-    <script>
-    var acfab_blacklist = <?php echo json_encode( $blacklist ); ?>;
+?>
+<script>
+  var acfab_blocklist = <?php echo json_encode( $blocklist ); ?>;
 
-    wp.hooks.addFilter('blocks.registerBlockType', 'acfab_hide_blocks', function(settings, name) {
-      if (acfab_blacklist.indexOf(name) > -1) {
-        settings = $.extend(true, settings, {
-          supports: {
-            inserter: false
-          }
-        });
-      }
+  wp.hooks.addFilter('blocks.registerBlockType', 'acfab_hide_blocks', function(settings, name) {
+    if (acfab_blocklist.indexOf(name) > -1) {
+      settings = $.extend(true, settings, {
+        supports: {
+          inserter: false
+        }
+      });
+    }
 
-      return settings;
-    });
-    </script>
-    <?php
+    return settings;
+  });
+</script>
+<?php
   }
 
-
-  // Get auto blocks
+  // Deprecated
   public static function get_auto_blocks() {
+    return ACF_Auto_Blocks::get_auto_blocks_v1();
+  }
+
+  // Get auto blocks - v1
+  public static function get_auto_blocks_v1() {
     $groups = acf_get_field_groups();
 
-    $auto_blocks = array();
+    $auto_blocks = [];
 
     foreach ( $groups as $group ) {
-      $is_block = ( $group['auto_block'] == 1 && ACF_Auto_Blocks::check_block_location( $group['location'] ) );
+      $is_block = ( ! empty( $group['auto_block'] ) && $group['auto_block'] == 1 && ACF_Auto_Blocks::check_block_location_v1( $group['location'] ) );
 
       if ( $is_block ) {
         $auto_blocks[] = $group;
@@ -311,16 +371,46 @@ class ACF_Auto_Blocks {
     return $auto_blocks;
   }
 
+  // Get auto blocks - v2
+  public static function get_auto_blocks_v2() {
+    $dir = ACF_Auto_Blocks::get_directory() . '/';
+    $scan = scandir( $dir );
+
+    $auto_blocks = [];
+
+    foreach ( $scan as $slug ) {
+      if ( in_array( $slug, [ '.', '..' ] ) || ! is_dir( $dir . $slug ) ) {
+        continue;
+      }
+
+      $json = $dir . $slug . '/block.json';
+
+      if ( file_exists( $json ) ) {
+        $args = [
+          'key' => $slug,
+          'auto_block_key' => $slug, // Backward compatability
+          'acf_key' => ACF_Auto_blocks::snake_case( 'group_block_' . $slug ), // field group key
+          'dir' => $dir . $slug,
+          'json' => $json,
+        ];
+
+        $auto_blocks[ $slug ] = apply_filters( 'acf/auto_blocks/block_settings', $args );
+      }
+    }
+
+    return $auto_blocks;
+  }
+
 
   // Validate location
-  public static function check_block_location( $array ) {
+  public static function check_block_location_v1( $array ) {
     $check = false;
 
     foreach ( $array as $item ) {
       if ( ! empty( $item['param'] ) && $item['param'] == 'block' ) {
         $check = true;
       } else if ( is_array( $item ) ) {
-        $check = ACF_Auto_Blocks::check_block_location( $item );
+        $check = ACF_Auto_Blocks::check_block_location_v1( $item );
       }
 
       if ( $check ) {
@@ -333,19 +423,19 @@ class ACF_Auto_Blocks {
 
 
   // Parse field group options
-  public static function parse_options( $options ) {
-    $options = wp_parse_args( $options, array(
+  public static function parse_options_v1( $options ) {
+    $options = wp_parse_args( $options, [
       'auto_block' => 0,
       'auto_block_key' => '',
       'auto_block_description' => '',
       'auto_block_icon' => '',
       'auto_block_keywords' => '',
-      'auto_block_align' => array(),
+      'auto_block_align' => [],
       'auto_block_multiple' => 0,
       'auto_block_reusable' => 0,
       'auto_block_mode' => true,
       'auto_block_mode_default' => 'auto',
-      'auto_block_post_types' => array( 'wp_block', 'post', 'page' ),
+      'auto_block_post_types' => [ 'wp_block', 'post', 'page' ],
       'auto_block_text_align' => 0,
       'auto_block_text_align_default' => '',
       'auto_block_content_align' => 0,
@@ -354,18 +444,18 @@ class ACF_Auto_Blocks {
       'auto_block_content_align_default_matrix' => '',
       'auto_block_jsx' => 0,
       'auto_block_screenshot' => '',
-    ) );
+    ] );
 
     if ( ! is_array( $options['auto_block_align'] ) ) {
-      $options['auto_block_align'] = array_filter( array(
+      $options['auto_block_align'] = array_filter( [
         $options['auto_block_align']
-      ) );
+      ] );
     }
 
     if ( ! is_array( $options['auto_block_post_types'] ) ) {
-      $options['auto_block_post_types'] = array_filter( array(
+      $options['auto_block_post_types'] = array_filter( [
         $options['auto_block_post_types']
-      ) );
+      ] );
     }
 
     if ( $options['auto_block_content_align_type'] == 'matrix' ) {
@@ -386,7 +476,7 @@ class ACF_Auto_Blocks {
     }
 
     $post = get_post( $id );
-    $blocks = array();
+    $blocks = [];
 
     if ( has_blocks( $post->post_content ) ) {
       $all_blocks = parse_blocks( $post->post_content );
@@ -450,6 +540,26 @@ class ACF_Auto_Blocks {
 
   }
 
+
+  // Helpers
+
+  // Get Directory
+  public static function get_directory() {
+    return apply_filters( 'acf/auto_blocks/directory', get_stylesheet_directory() . '/acf-blocks' );
+  }
+
+  public static function snake_case( $text = '' ) {
+    return strtolower( str_ireplace( '-', '_', $text ) );
+  }
+
+  public static function kebab_case( $text = '' ) {
+    return strtolower( str_ireplace( '_', '-', $text ) );
+  }
+
+  public static function title_case( $text = '' ) {
+    return ucwords( str_ireplace( [ '_', '-' ], ' ', $text ) );
+  }
+
 }
 
 
@@ -457,6 +567,8 @@ class ACF_Auto_Blocks {
 
 ACF_Auto_Blocks::get_instance();
 
-include 'includes/converter.php';
-include 'includes/settings.php';
-include 'includes/updater.php';
+$path = plugin_dir_path( __FILE__ );
+
+include $path . 'includes/cli.php';
+include $path . 'includes/settings.php';
+include $path . 'includes/updater.php';
