@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the block editor.
-Version: 2.0.1
+Version: 2.0.2
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -263,7 +263,7 @@ class ACF_Auto_Blocks {
 
 
   // Render block
-  public function do_render_block( $block, $slug ) {
+  public function do_render_block( $block, $slug, $template ) {
     ob_start();
 
     $is_preview = get_field( 'is_preview' );
