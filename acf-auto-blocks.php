@@ -280,7 +280,7 @@ class ACF_Auto_Blocks {
     } else {
       $data = apply_filters( 'acf/auto_blocks/block_data', get_fields(), $block );
 
-      $this->template_part( $slug . '/template', [
+      $this->template_part( $template, [
         'is_admin' => is_admin(),
         'block' => $block,
         'data' => $data,
