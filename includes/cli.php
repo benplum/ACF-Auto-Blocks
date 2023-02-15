@@ -60,8 +60,10 @@ class ACF_Auto_Blocks_CLI {
     file_put_contents( $dir . "/group_block_{$key_snake}.json", $this->build_block_fieldgroup( $values ) );
     WP_CLI::log("✅ Created: group_block_{$key_snake}.json");
 
-    file_put_contents( $dir . '/template.php', $this->build_block_template( $values ) );
-    WP_CLI::log('✅ Created: template.php');
+    $file = apply_filters( 'acf/auto_blocks/cli/template_file', 'template', $key_kebab );
+
+    file_put_contents( $dir . "/{$file}.php", $this->build_block_template( $values ) );
+    WP_CLI::log("✅ Created: {$file}.php");
 
     do_action( 'acf/auto_blocks/cli/make_block', $args, $assoc_args, $values );
 
