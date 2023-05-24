@@ -1,6 +1,6 @@
 <?php
 
-// PW GitHub Updater v 1.1.0
+// PW GitHub Updater v 1.1.1
 
 if ( ! class_exists( 'PW_GitHub_Updater' ) ) {
 
@@ -14,6 +14,9 @@ class PW_GitHub_Updater {
   public $basename;
   public $active;
   public $response;
+
+  public $requires = '0';
+  public $tested = '0';
 
   public static function get_instance() {
     $called_class = get_called_class();
@@ -58,6 +61,10 @@ class PW_GitHub_Updater {
   public function modify_transient( $transient ) {
     if ( property_exists( $transient, 'checked' ) ) {
       $this->get_repository();
+
+      if ( empty( $this->response['name'] ) ) {
+        return $transient;
+      }
 
       $checked = $transient->checked;
       $should_update = version_compare( $this->response['name'], $checked[ $this->basename ], 'gt' );

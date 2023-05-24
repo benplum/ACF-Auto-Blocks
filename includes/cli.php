@@ -97,7 +97,7 @@ class ACF_Auto_Blocks_CLI {
   }
 }', $values );
 
-    return apply_filters( 'acf/auto_blocks/cli/build_json', $json, [ $values ] );
+    return apply_filters( 'acf/auto_blocks/cli/build_json', $json, $values );
   }
 
   // ACF Field Group
@@ -129,7 +129,7 @@ class ACF_Auto_Blocks_CLI {
     "modified": 1669655322
 }', $values );
 
-    return apply_filters( 'acf/auto_blocks/cli/build_field_group', $group, [ $values ] );
+    return apply_filters( 'acf/auto_blocks/cli/build_field_group', $group, $values );
   }
 
   // Template
