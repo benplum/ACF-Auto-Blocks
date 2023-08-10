@@ -59,7 +59,7 @@ class PW_GitHub_Updater {
 
   // Check our
   public function modify_transient( $transient ) {
-    if ( property_exists( $transient, 'checked' ) ) {
+    if ( is_object( $transient ) && property_exists( $transient, 'checked' ) ) {
       $this->get_repository();
 
       if ( empty( $this->response['name'] ) ) {
