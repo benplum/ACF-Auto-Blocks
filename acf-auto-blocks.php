@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the block editor.
-Version: 2.1.0
+Version: 2.1.1
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -382,28 +382,31 @@ class ACF_Auto_Blocks {
   // Get auto blocks - v2
   public static function get_auto_blocks_v2() {
     $dir = ACF_Auto_Blocks::get_directory() . '/';
-    $scan = scandir( $dir );
 
     $auto_blocks = [];
 
-    foreach ( $scan as $slug ) {
-      if ( in_array( $slug, [ '.', '..' ] ) || ! is_dir( $dir . $slug ) ) {
-        continue;
-      }
+    if ( is_dir( $dir ) ) {
+      $scan = scandir( $dir );
 
-      $json = $dir . $slug . '/block.json';
+      foreach ( $scan as $slug ) {
+        if ( in_array( $slug, [ '.', '..' ] ) || ! is_dir( $dir . $slug ) ) {
+          continue;
+        }
 
-      if ( file_exists( $json ) ) {
-        $args = [
-          'key' => $slug,
-          'auto_block_key' => $slug, // Backward compatability
-          'acf_key' => ACF_Auto_blocks::snake_case( 'group_block_' . $slug ), // field group key
-          'dir' => $dir . $slug,
-          'json' => $json,
-          'settings' => json_decode( file_get_contents( $json ), true ),
-        ];
+        $json = $dir . $slug . '/block.json';
 
-        $auto_blocks[ $slug ] = apply_filters( 'acf/auto_blocks/block_settings', $args );
+        if ( file_exists( $json ) ) {
+          $args = [
+            'key' => $slug,
+            'auto_block_key' => $slug, // Backward compatability
+            'acf_key' => ACF_Auto_blocks::snake_case( 'group_block_' . $slug ), // field group key
+            'dir' => $dir . $slug,
+            'json' => $json,
+            'settings' => json_decode( file_get_contents( $json ), true ),
+          ];
+
+          $auto_blocks[ $slug ] = apply_filters( 'acf/auto_blocks/block_settings', $args );
+        }
       }
     }
 
