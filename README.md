@@ -2,6 +2,10 @@
 
 Auto-register ACF field groups as blocks in the block editor.
 
+## Version 3
+
+Version 3 forces ACF blocks into the 'Expanded Editor' mode in order to remain compatable with WordPress 7.1.
+
 ## Creating Blocks
 
 ACF Auto Blocks includes a `wp-cli` command for creating new blocks:

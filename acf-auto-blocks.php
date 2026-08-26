@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields: Auto Blocks
 Plugin URI: https://github.com/benplum/ACF-Auto-Blocks
 Description: Auto-register ACF field groups as blocks in the block editor.
-Version: 2.1.1
+Version: 3.0.0
 Author: Ben Plum
 Author URI: https://benplum.com
 License: GPLv2 or later
@@ -43,6 +43,24 @@ class ACF_Auto_Blocks {
     add_action( 'print_default_editor_scripts', [ $this, 'admin_footer_scripts' ], 999 );
 
     add_action( 'save_post', [ $this, 'set_post_block_meta' ] );
+
+    add_filter( 'acf/blocks/default_block_version', [ $this, 'force_block_version' ], 10, 2 );
+
+    add_filter( 'block_type_metadata', [ $this, 'force_block_version_metadata' ] );
+  }
+
+
+  public function force_block_version( $version, $block ) {
+    return 3;
+  }
+
+  public function force_block_version_metadata( $metadata ) {
+    if ( isset( $metadata['acf'] ) && is_array( $metadata['acf'] ) ) {
+      $metadata['acf']['blockVersion'] = 3;
+      $metadata['acf']['hideFieldsInSidebar'] = true;
+    }
+
+    return $metadata;
   }
 
 
@@ -279,25 +297,29 @@ class ACF_Auto_Blocks {
         $src = wp_get_attachment_image_src( $block['example']['attributes']['data']['screenshot'], 'medium' );
         $preview = '<img src="' . $src[0] . '" alt="" class="acfab_preview_image">';
       } else {
-        $preview = '<p>' . $block['title'] . ' (' . $block['name'] . ')</p>';
+        $preview = '<p style="background: #eee; color: #000; margin: 0; padding: 20px;">' . $block['title'] . '</p>';
       }
 
       echo apply_filters( 'acf/auto_blocks/block_preview', $preview, $block );
     } else {
-      $data = apply_filters( 'acf/auto_blocks/block_data', get_fields(), $block );
+      if ( is_admin() ) {
+        echo '<p style="background: #eee; color: #000; margin: 0; padding: 20px;">' . $block['title'] . '</p>';
+      } else {
+        $data = apply_filters( 'acf/auto_blocks/block_data', get_fields(), $block );
 
-      $this->template_part( $template, [
-        'is_admin' => is_admin(),
-        'block' => $block,
-        'data' => $data,
-      ] );
+        $this->template_part( $template, [
+          // 'is_admin' => is_admin(),
+          'block' => $block,
+          'data' => $data,
+        ] );
+      }
     }
 
     $content = ob_get_clean();
 
-    if ( is_admin() ) {
-      $content = apply_filters( 'acf/auto_blocks/render_block', $content, $block );
-    }
+    // if ( is_admin() ) {
+    //   $content = apply_filters( 'acf/auto_blocks/render_block', $content, $block );
+    // }
 
     echo $content;
   }
@@ -406,6 +428,7 @@ class ACF_Auto_Blocks {
           ];
 
           $auto_blocks[ $slug ] = apply_filters( 'acf/auto_blocks/block_settings', $args );
+
         }
       }
     }
